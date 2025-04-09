@@ -10,17 +10,27 @@ import {
   User,
   BookMarked,
   LogIn,
-  PenSquare
+  PenSquare,
+  LogOut
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Mock authentication state - in a real app, this would come from an auth context
-  const isAuthenticated = false;
-  const isAdmin = false;
+  const { user, isAuthenticated, signOut } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
@@ -103,6 +113,7 @@ const Navbar = () => {
                     Favorites
                   </Link>
                 </Button>
+                
                 {isAdmin && (
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/admin">
@@ -111,11 +122,49 @@ const Navbar = () => {
                     </Link>
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" asChild>
-                  <Link to="/profile">
-                    <User className="h-5 w-5" />
-                  </Link>
-                </Button>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user?.avatar} />
+                        <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/favorites" className="flex items-center">
+                        <BookMarked className="mr-2 h-4 w-4" />
+                        Favorites
+                      </Link>
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="flex items-center">
+                          <PenSquare className="mr-2 h-4 w-4" />
+                          Admin
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => signOut()}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : (
               <Button variant="default" size="sm" asChild>
@@ -193,6 +242,16 @@ const Navbar = () => {
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </Link>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      toggleMenu();
+                    }}
+                    className="flex w-full items-center rounded-md p-2 text-destructive hover:bg-accent"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </button>
                 </>
               ) : (
                 <Link

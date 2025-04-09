@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 type AuthFormType = "login" | "register" | "forgotPassword";
 
@@ -38,9 +38,8 @@ const forgotPasswordSchema = z.object({
 });
 
 const AuthForm = ({ type }: { type: AuthFormType }) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, signUp, isLoading } = useAuth();
+  const [resetEmailSent, setResetEmailSent] = useState(false);
 
   const schema = 
     type === "login" ? loginSchema :
@@ -59,43 +58,36 @@ const AuthForm = ({ type }: { type: AuthFormType }) => {
   });
 
   const onSubmit = async (values: FormValues) => {
-    setIsLoading(true);
     try {
-      // Mock authentication - in a real app, this would call an auth API
-      console.log("Form values:", values);
-      
-      setTimeout(() => {
-        if (type === "login") {
-          toast({
-            title: "Login successful",
-            description: "You have been logged in successfully.",
-          });
-          navigate("/");
-        } else if (type === "register") {
-          toast({
-            title: "Registration successful",
-            description: "Your account has been created successfully.",
-          });
-          navigate("/login");
-        } else if (type === "forgotPassword") {
-          toast({
-            title: "Password reset email sent",
-            description: "Please check your email for further instructions.",
-          });
-          navigate("/login");
-        }
-        setIsLoading(false);
-      }, 1500);
+      if (type === "login") {
+        await signIn(values.email, values.password);
+      } else if (type === "register") {
+        await signUp(values.email, values.password, values.name);
+      } else if (type === "forgotPassword") {
+        // Handle password reset
+        await supabase.auth.resetPasswordForEmail(values.email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        setResetEmailSent(true);
+      }
     } catch (error) {
       console.error("Authentication error:", error);
-      toast({
-        title: "Authentication error",
-        description: "An error occurred during authentication. Please try again.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
     }
   };
+
+  if (type === "forgotPassword" && resetEmailSent) {
+    return (
+      <div className="text-center">
+        <h3 className="text-lg font-semibold mb-2">Password Reset Email Sent</h3>
+        <p className="text-muted-foreground mb-4">
+          If an account exists with that email, you will receive instructions to reset your password.
+        </p>
+        <Button asChild>
+          <Link to="/login">Return to Login</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>

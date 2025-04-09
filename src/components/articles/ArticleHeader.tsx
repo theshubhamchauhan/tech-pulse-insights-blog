@@ -2,14 +2,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, BookmarkPlus, Share2 } from "lucide-react";
-
-interface Author {
-  name: string;
-  avatar: string;
-  role?: string;
-  bio?: string;
-}
+import { Calendar, Clock, BookmarkPlus, Share2, BookmarkCheck } from "lucide-react";
+import { Profile } from "@/lib/types";
 
 interface ArticleHeaderProps {
   title: string;
@@ -17,9 +11,10 @@ interface ArticleHeaderProps {
   category: string;
   date: string;
   readTime: string;
-  author: Author;
+  author: Profile;
   onAddToFavorites: () => void;
   onShare: () => void;
+  isFavorite?: boolean;
 }
 
 const ArticleHeader = ({
@@ -31,6 +26,7 @@ const ArticleHeader = ({
   author,
   onAddToFavorites,
   onShare,
+  isFavorite = false,
 }: ArticleHeaderProps) => {
   return (
     <header className="max-w-4xl mx-auto mb-12">
@@ -57,8 +53,8 @@ const ArticleHeader = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Avatar className="h-12 w-12">
-            <AvatarImage src={author.avatar} />
-            <AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
+            <AvatarImage src={author.avatar || ""} />
+            <AvatarFallback>{author.name?.charAt(0) || 'A'}</AvatarFallback>
           </Avatar>
           <div>
             <p className="font-medium">{author.name}</p>
@@ -68,12 +64,21 @@ const ArticleHeader = ({
         
         <div className="flex space-x-2">
           <Button
-            variant="outline"
+            variant={isFavorite ? "default" : "outline"}
             size="sm"
             onClick={onAddToFavorites}
           >
-            <BookmarkPlus className="mr-2 h-4 w-4" />
-            Save
+            {isFavorite ? (
+              <>
+                <BookmarkCheck className="mr-2 h-4 w-4" />
+                Saved
+              </>
+            ) : (
+              <>
+                <BookmarkPlus className="mr-2 h-4 w-4" />
+                Save
+              </>
+            )}
           </Button>
           <Button 
             variant="outline" 

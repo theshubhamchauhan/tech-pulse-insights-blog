@@ -1,14 +1,15 @@
 
 import { Separator } from "@/components/ui/separator";
 import ArticleGrid from "@/components/articles/ArticleGrid";
-import { articles } from "@/data/mockData";
-import type { ArticleProps } from "@/components/articles/ArticleCard";
+import type { ArticleWithRelations } from "@/lib/types";
 
 interface RelatedArticlesProps {
-  articles: ArticleProps[];
+  articles: ArticleWithRelations[];
 }
 
 const RelatedArticles = ({ articles }: RelatedArticlesProps) => {
+  if (!articles || articles.length === 0) return null;
+  
   return (
     <div className="max-w-7xl mx-auto">
       <Separator className="mb-16" />
