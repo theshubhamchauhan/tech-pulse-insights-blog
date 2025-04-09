@@ -115,8 +115,37 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
 				'fade-out': 'fade-out 0.3s ease-out'
-			}
+			},
+			typography: (theme) => ({
+				DEFAULT: {
+					css: {
+						maxWidth: 'none',
+						color: theme('colors.foreground'),
+						a: {
+							color: theme('colors.primary.500'),
+							'&:hover': {
+								color: theme('colors.primary.600'),
+							},
+						},
+						h1: {
+							fontFamily: theme('fontFamily.heading'),
+						},
+						h2: {
+							fontFamily: theme('fontFamily.heading'),
+						},
+						h3: {
+							fontFamily: theme('fontFamily.heading'),
+						},
+						h4: {
+							fontFamily: theme('fontFamily.heading'),
+						},
+					},
+				},
+			}),
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		require("@tailwindcss/typography"),
+	],
 } satisfies Config;
