@@ -33,6 +33,11 @@ export interface ArticleWithRelations extends Omit<Article, "author_id" | "categ
   author: SimpleProfile;
   category: Category;
   tags: Tag[];
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  canonical_url?: string;
+  og_image?: string;
 }
 
 export interface CommentWithAuthor extends Omit<Comment, "author_id"> {
@@ -44,6 +49,17 @@ export interface Session {
   user: Profile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+}
+
+// SEO metadata interface
+export interface SEOMetadata {
+  title: string;
+  description?: string;
+  keywords?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  ogType?: string;
+  twitterCard?: string;
 }
 
 // Mapping functions to convert between types
@@ -77,5 +93,18 @@ export const ensureAuthor = (profile: SimpleProfile): Author => {
     avatar: profile.avatar || "",
     role: profile.role,
     bio: profile.bio,
+  };
+};
+
+// Utility function to generate SEO metadata from article
+export const generateSEOMetadata = (article: ArticleWithRelations): SEOMetadata => {
+  return {
+    title: article.meta_title || article.title,
+    description: article.meta_description || article.excerpt,
+    keywords: article.meta_keywords,
+    canonicalUrl: article.canonical_url,
+    ogImage: article.og_image || article.cover_image,
+    ogType: "article",
+    twitterCard: "summary_large_image"
   };
 };

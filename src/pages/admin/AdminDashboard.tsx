@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -10,12 +10,19 @@ import {
   LogOut,
   Plus,
   Menu,
-  X
+  X,
+  FolderOpen
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AdminSidebar = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { signOut } = useAuth();
 
   const toggleMobileSidebar = () => {
     setIsMobileSidebarOpen(!isMobileSidebarOpen);
@@ -25,16 +32,28 @@ const AdminSidebar = () => {
     setIsMobileSidebarOpen(false);
   };
 
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Error logging out",
+        description: "There was an error logging out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
-  const handleLogout = () => {
-    // Mock logout - in a real app, this would call an auth API
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully.",
-    });
-    navigate("/");
+  // Check if a path is active (exact match or starts with)
+  const isActivePath = (path: string) => {
+    if (path === "/admin" && location.pathname === "/admin") {
+      return true;
+    }
+    if (path !== "/admin" && location.pathname.startsWith(path)) {
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -73,7 +92,7 @@ const AdminSidebar = () => {
 
           <nav className="flex-1 p-6 space-y-1">
             <Button
-              variant="ghost"
+              variant={isActivePath("/admin") && location.pathname === "/admin" ? "secondary" : "ghost"}
               className="w-full justify-start"
               asChild
             >
@@ -82,8 +101,9 @@ const AdminSidebar = () => {
                 Dashboard
               </Link>
             </Button>
+            
             <Button
-              variant="ghost"
+              variant={isActivePath("/admin/articles") ? "secondary" : "ghost"}
               className="w-full justify-start"
               asChild
             >
@@ -92,8 +112,20 @@ const AdminSidebar = () => {
                 Articles
               </Link>
             </Button>
+            
             <Button
-              variant="ghost"
+              variant={isActivePath("/admin/categories") ? "secondary" : "ghost"}
+              className="w-full justify-start"
+              asChild
+            >
+              <Link to="/admin/categories" onClick={closeMobileSidebar}>
+                <FolderOpen className="mr-2 h-5 w-5" />
+                Categories
+              </Link>
+            </Button>
+            
+            <Button
+              variant={isActivePath("/admin/users") ? "secondary" : "ghost"}
               className="w-full justify-start"
               asChild
             >
@@ -102,8 +134,9 @@ const AdminSidebar = () => {
                 Users
               </Link>
             </Button>
+            
             <Button
-              variant="ghost"
+              variant={isActivePath("/admin/settings") ? "secondary" : "ghost"}
               className="w-full justify-start"
               asChild
             >
@@ -131,19 +164,38 @@ const AdminSidebar = () => {
 };
 
 const AdminDashboard = () => {
+  const location = useLocation();
+  
+  // Get title based on current path
+  const getTitle = () => {
+    if (location.pathname === "/admin") return "Dashboard";
+    if (location.pathname === "/admin/articles") return "Articles";
+    if (location.pathname.includes("/admin/articles/new")) return "Create New Article";
+    if (location.pathname.includes("/admin/articles/edit")) return "Edit Article";
+    if (location.pathname === "/admin/categories") return "Categories";
+    if (location.pathname === "/admin/users") return "Users";
+    if (location.pathname === "/admin/settings") return "Settings";
+    return "Admin Dashboard";
+  };
+  
+  // Determine if we should show the "New Article" button
+  const showNewArticleButton = location.pathname === "/admin/articles";
+  
   return (
     <div className="min-h-screen bg-background">
       <AdminSidebar />
 
       <div className="lg:ml-64 min-h-screen">
         <header className="bg-card border-b py-4 px-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <Button asChild>
-            <Link to="/admin/articles/new">
-              <Plus className="mr-2 h-5 w-5" />
-              New Article
-            </Link>
-          </Button>
+          <h1 className="text-2xl font-bold">{getTitle()}</h1>
+          {showNewArticleButton && (
+            <Button asChild>
+              <Link to="/admin/articles/new">
+                <Plus className="mr-2 h-5 w-5" />
+                New Article
+              </Link>
+            </Button>
+          )}
         </header>
 
         <main className="p-6">

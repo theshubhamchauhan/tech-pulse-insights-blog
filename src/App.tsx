@@ -15,6 +15,10 @@ import Categories from "./pages/Categories";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Dashboard from "./pages/admin/Dashboard";
 import ArticleManagement from "./pages/admin/ArticleManagement";
+import ArticleEditor from "./pages/admin/ArticleEditor";
+import CategoryManagement from "./pages/admin/CategoryManagement";
+import UserManagement from "./pages/admin/UserManagement";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import ProfilePage from "./pages/ProfilePage";
 import FavoritesPage from "./pages/FavoritesPage";
@@ -32,11 +36,16 @@ const AppRoutes = () => (
     <Route path="/categories/:slug" element={<Categories />} />
     <Route path="/profile" element={<ProfilePage />} />
     <Route path="/favorites" element={<FavoritesPage />} />
+    <Route path="/about" element={<About />} />
     
     {/* Admin Routes */}
     <Route path="/admin" element={<AdminDashboard />}>
       <Route index element={<Dashboard />} />
       <Route path="articles" element={<ArticleManagement />} />
+      <Route path="articles/new" element={<ArticleEditor />} />
+      <Route path="articles/edit/:id" element={<ArticleEditor />} />
+      <Route path="categories" element={<CategoryManagement />} />
+      <Route path="users" element={<UserManagement />} />
       {/* Additional admin routes would be added here */}
     </Route>
     

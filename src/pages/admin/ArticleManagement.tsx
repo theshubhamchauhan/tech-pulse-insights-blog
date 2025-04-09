@@ -34,10 +34,11 @@ import {
   FileEdit,
   Trash2,
   Eye,
-  Check,
+  Copy,
   Clock,
   AlertTriangle,
   Filter,
+  CheckCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -55,10 +56,11 @@ interface ArticleData {
   date: string;
   status: ArticleStatus;
   views: number;
+  slug: string;
 }
 
 const statusIcons = {
-  published: <Check className="h-4 w-4 text-green-500" />,
+  published: <CheckCircle className="h-4 w-4 text-green-500" />,
   draft: <AlertTriangle className="h-4 w-4 text-yellow-500" />,
   scheduled: <Clock className="h-4 w-4 text-blue-500" />,
 };
@@ -81,6 +83,7 @@ const ArticleManagement = () => {
     date: article.date,
     status: ["published", "draft", "scheduled"][Math.floor(Math.random() * 3)] as ArticleStatus,
     views: Math.floor(Math.random() * 10000),
+    slug: article.slug,
   }));
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -270,13 +273,13 @@ const ArticleManagement = () => {
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link to={`/article/${article.id}`}>
+                          <Link to={`/article/${article.slug}`}>
                             <Eye className="mr-2 h-4 w-4" />
                             View
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDuplicate(article.id)}>
-                          <Check className="mr-2 h-4 w-4" />
+                          <Copy className="mr-2 h-4 w-4" />
                           Duplicate
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
