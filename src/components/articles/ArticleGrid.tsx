@@ -1,9 +1,10 @@
 
 import { ReactNode } from "react";
 import ArticleCard, { ArticleProps } from "./ArticleCard";
+import { ArticleWithRelations } from "@/lib/types";
 
 interface ArticleGridProps {
-  articles: ArticleProps[];
+  articles: (ArticleProps | ArticleWithRelations)[];
   featured?: boolean;
   title?: string;
   description?: string;

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthFormType = "login" | "register" | "forgotPassword";
 
@@ -37,6 +38,11 @@ const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
 });
 
+type LoginFormValues = z.infer<typeof loginSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema>;
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+type FormValues = LoginFormValues | RegisterFormValues | ForgotPasswordFormValues;
+
 const AuthForm = ({ type }: { type: AuthFormType }) => {
   const { signIn, signUp, isLoading } = useAuth();
   const [resetEmailSent, setResetEmailSent] = useState(false);
@@ -45,8 +51,6 @@ const AuthForm = ({ type }: { type: AuthFormType }) => {
     type === "login" ? loginSchema :
     type === "register" ? registerSchema :
     forgotPasswordSchema;
-
-  type FormValues = z.infer<typeof schema>;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -60,12 +64,15 @@ const AuthForm = ({ type }: { type: AuthFormType }) => {
   const onSubmit = async (values: FormValues) => {
     try {
       if (type === "login") {
-        await signIn(values.email, values.password);
+        const loginValues = values as LoginFormValues;
+        await signIn(loginValues.email, loginValues.password);
       } else if (type === "register") {
-        await signUp(values.email, values.password, values.name);
+        const registerValues = values as RegisterFormValues;
+        await signUp(registerValues.email, registerValues.password, registerValues.name);
       } else if (type === "forgotPassword") {
         // Handle password reset
-        await supabase.auth.resetPasswordForEmail(values.email, {
+        const forgotPasswordValues = values as ForgotPasswordFormValues;
+        await supabase.auth.resetPasswordForEmail(forgotPasswordValues.email, {
           redirectTo: `${window.location.origin}/reset-password`,
         });
         setResetEmailSent(true);

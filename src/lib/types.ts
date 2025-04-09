@@ -10,15 +10,24 @@ export type Comment = Database["public"]["Tables"]["comments"]["Row"];
 export type Favorite = Database["public"]["Tables"]["favorites"]["Row"];
 export type ArticleTag = Database["public"]["Tables"]["article_tags"]["Row"];
 
+// Simplified Profile type that doesn't require all DB fields
+export interface SimpleProfile {
+  id: string;
+  name: string;
+  avatar?: string | null;
+  role?: string | null;
+  bio?: string | null;
+}
+
 // Extended types for UI display
 export interface ArticleWithRelations extends Omit<Article, "author_id" | "category_id"> {
-  author: Profile;
+  author: SimpleProfile;
   category: Category;
   tags: Tag[];
 }
 
 export interface CommentWithAuthor extends Comment {
-  author: Profile;
+  author: SimpleProfile;
   replies?: CommentWithAuthor[];
 }
 

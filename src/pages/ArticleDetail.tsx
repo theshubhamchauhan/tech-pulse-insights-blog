@@ -85,7 +85,7 @@ const ArticleDetail = () => {
       queryClient.invalidateQueries({ queryKey: ['favorites'] });
     },
     onError: (error: any) => {
-      toast.error("Failed to update favorites", { description: error.message });
+      toast.error("Failed to update favorites");
     }
   });
   
@@ -98,15 +98,14 @@ const ArticleDetail = () => {
       queryClient.invalidateQueries({ queryKey: ['comments', article?.id] });
     },
     onError: (error: any) => {
-      toast.error("Failed to post comment", { description: error.message });
+      toast.error("Failed to post comment");
     }
   });
 
   // Handle favorite toggle
   const handleAddToFavorites = () => {
     if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
+      toast("Authentication required", {
         description: "Please log in to add this article to your favorites.",
       });
       navigate("/login");
@@ -129,8 +128,7 @@ const ArticleDetail = () => {
     } else {
       // Fallback: copy URL to clipboard
       navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link copied",
+      toast("Link copied", {
         description: "Article link copied to clipboard.",
       });
     }
@@ -139,8 +137,7 @@ const ArticleDetail = () => {
   // Handle comment submission
   const handleCommentSubmit = (content: string, parentId?: string) => {
     if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
+      toast("Authentication required", {
         description: "Please log in to comment on this article.",
       });
       navigate("/login");

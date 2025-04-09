@@ -4,6 +4,7 @@ import type {
   ArticleWithRelations, 
   CommentWithAuthor, 
   Profile, 
+  SimpleProfile,
   Category, 
   Tag
 } from "@/lib/types";
@@ -60,7 +61,7 @@ export async function getArticles(): Promise<ArticleWithRelations[]> {
     data.map(async (article) => {
       const { data: tagData, error: tagError } = await supabase
         .from('article_tags')
-        .select('tags(id, name, slug)')
+        .select('tags(id, name, slug, created_at)')
         .eq('article_id', article.id);
       
       if (tagError) throw tagError;
@@ -68,7 +69,7 @@ export async function getArticles(): Promise<ArticleWithRelations[]> {
       return {
         ...article,
         tags: tagData?.map(t => t.tags) || []
-      };
+      } as ArticleWithRelations;
     })
   );
   
@@ -92,7 +93,7 @@ export async function getArticleBySlug(slug: string): Promise<ArticleWithRelatio
   // Fetch tags for the article
   const { data: tagData, error: tagError } = await supabase
     .from('article_tags')
-    .select('tags(id, name, slug)')
+    .select('tags(id, name, slug, created_at)')
     .eq('article_id', data.id);
   
   if (tagError) throw tagError;
@@ -100,7 +101,7 @@ export async function getArticleBySlug(slug: string): Promise<ArticleWithRelatio
   return {
     ...data,
     tags: tagData?.map(t => t.tags) || []
-  };
+  } as ArticleWithRelations;
 }
 
 export async function getFeaturedArticles(): Promise<ArticleWithRelations[]> {
@@ -122,7 +123,7 @@ export async function getFeaturedArticles(): Promise<ArticleWithRelations[]> {
     data.map(async (article) => {
       const { data: tagData, error: tagError } = await supabase
         .from('article_tags')
-        .select('tags(id, name, slug)')
+        .select('tags(id, name, slug, created_at)')
         .eq('article_id', article.id);
       
       if (tagError) throw tagError;
@@ -130,7 +131,7 @@ export async function getFeaturedArticles(): Promise<ArticleWithRelations[]> {
       return {
         ...article,
         tags: tagData?.map(t => t.tags) || []
-      };
+      } as ArticleWithRelations;
     })
   );
   
@@ -165,7 +166,7 @@ export async function getArticlesByCategory(categorySlug: string): Promise<Artic
     data.map(async (article) => {
       const { data: tagData, error: tagError } = await supabase
         .from('article_tags')
-        .select('tags(id, name, slug)')
+        .select('tags(id, name, slug, created_at)')
         .eq('article_id', article.id);
       
       if (tagError) throw tagError;
@@ -173,7 +174,7 @@ export async function getArticlesByCategory(categorySlug: string): Promise<Artic
       return {
         ...article,
         tags: tagData?.map(t => t.tags) || []
-      };
+      } as ArticleWithRelations;
     })
   );
   
@@ -210,8 +211,8 @@ export async function getCommentsByArticleId(articleId: string): Promise<Comment
       
       return {
         ...comment,
-        replies: replyData || []
-      };
+        replies: replyData as CommentWithAuthor[] || []
+      } as CommentWithAuthor;
     })
   );
   
@@ -240,7 +241,7 @@ export async function addComment(articleId: string, content: string, parentId?: 
     .single();
   
   if (error) throw error;
-  return data;
+  return data as CommentWithAuthor;
 }
 
 // Favorites
@@ -332,7 +333,7 @@ export async function getUserFavorites(): Promise<ArticleWithRelations[]> {
     data.map(async (article) => {
       const { data: tagData, error: tagError } = await supabase
         .from('article_tags')
-        .select('tags(id, name, slug)')
+        .select('tags(id, name, slug, created_at)')
         .eq('article_id', article.id);
       
       if (tagError) throw tagError;
@@ -340,7 +341,7 @@ export async function getUserFavorites(): Promise<ArticleWithRelations[]> {
       return {
         ...article,
         tags: tagData?.map(t => t.tags) || []
-      };
+      } as ArticleWithRelations;
     })
   );
   
