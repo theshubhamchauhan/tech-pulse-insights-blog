@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, BookmarkPlus, Share2, BookmarkCheck } from "lucide-react";
-import { Profile } from "@/lib/types";
+import { SimpleProfile } from "@/lib/types";
 
 interface ArticleHeaderProps {
   title: string;
@@ -11,7 +11,7 @@ interface ArticleHeaderProps {
   category: string;
   date: string;
   readTime: string;
-  author: Profile;
+  author: SimpleProfile;
   onAddToFavorites: () => void;
   onShare: () => void;
   isFavorite?: boolean;

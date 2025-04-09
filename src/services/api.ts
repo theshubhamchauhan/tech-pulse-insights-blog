@@ -66,10 +66,14 @@ export async function getArticles(): Promise<ArticleWithRelations[]> {
       
       if (tagError) throw tagError;
       
-      return {
+      const mappedArticle: ArticleWithRelations = {
         ...article,
+        author: article.author as SimpleProfile,
+        category: article.category as Category,
         tags: tagData?.map(t => t.tags) || []
-      } as ArticleWithRelations;
+      };
+      
+      return mappedArticle;
     })
   );
   
@@ -98,10 +102,14 @@ export async function getArticleBySlug(slug: string): Promise<ArticleWithRelatio
   
   if (tagError) throw tagError;
   
-  return {
+  const mappedArticle: ArticleWithRelations = {
     ...data,
+    author: data.author as SimpleProfile,
+    category: data.category as Category,
     tags: tagData?.map(t => t.tags) || []
-  } as ArticleWithRelations;
+  };
+  
+  return mappedArticle;
 }
 
 export async function getFeaturedArticles(): Promise<ArticleWithRelations[]> {
@@ -128,10 +136,14 @@ export async function getFeaturedArticles(): Promise<ArticleWithRelations[]> {
       
       if (tagError) throw tagError;
       
-      return {
+      const mappedArticle: ArticleWithRelations = {
         ...article,
+        author: article.author as SimpleProfile,
+        category: article.category as Category,
         tags: tagData?.map(t => t.tags) || []
-      } as ArticleWithRelations;
+      };
+      
+      return mappedArticle;
     })
   );
   
@@ -171,10 +183,14 @@ export async function getArticlesByCategory(categorySlug: string): Promise<Artic
       
       if (tagError) throw tagError;
       
-      return {
+      const mappedArticle: ArticleWithRelations = {
         ...article,
+        author: article.author as SimpleProfile,
+        category: article.category as Category,
         tags: tagData?.map(t => t.tags) || []
-      } as ArticleWithRelations;
+      };
+      
+      return mappedArticle;
     })
   );
   
@@ -211,7 +227,11 @@ export async function getCommentsByArticleId(articleId: string): Promise<Comment
       
       return {
         ...comment,
-        replies: replyData as CommentWithAuthor[] || []
+        author: comment.author as SimpleProfile,
+        replies: replyData?.map(reply => ({
+          ...reply,
+          author: reply.author as SimpleProfile
+        })) || []
       } as CommentWithAuthor;
     })
   );
@@ -241,7 +261,11 @@ export async function addComment(articleId: string, content: string, parentId?: 
     .single();
   
   if (error) throw error;
-  return data as CommentWithAuthor;
+  
+  return {
+    ...data,
+    author: data.author as SimpleProfile
+  } as CommentWithAuthor;
 }
 
 // Favorites
@@ -338,10 +362,14 @@ export async function getUserFavorites(): Promise<ArticleWithRelations[]> {
       
       if (tagError) throw tagError;
       
-      return {
+      const mappedArticle: ArticleWithRelations = {
         ...article,
+        author: article.author as SimpleProfile,
+        category: article.category as Category,
         tags: tagData?.map(t => t.tags) || []
-      } as ArticleWithRelations;
+      };
+      
+      return mappedArticle;
     })
   );
   

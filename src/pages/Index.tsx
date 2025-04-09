@@ -8,6 +8,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import FeaturedArticle from "@/components/home/FeaturedArticle";
 import ArticleGrid from "@/components/articles/ArticleGrid";
 import { getArticles, getFeaturedArticles, getCategories } from "@/services/api";
+import { ArticleProps } from "@/components/articles/ArticleCard";
 
 const Index = () => {
   // Fetch articles
@@ -41,6 +42,26 @@ const Index = () => {
   const latestArticles = articles.slice(0, 6);
   const topCategories = categories.slice(0, 4);
 
+  // Convert featuredArticle to ArticleProps format for FeaturedArticle component
+  const adaptedFeaturedArticle = featuredArticle ? {
+    id: featuredArticle.id,
+    title: featuredArticle.title,
+    excerpt: featuredArticle.excerpt,
+    coverImage: featuredArticle.cover_image,
+    category: featuredArticle.category.name,
+    author: {
+      name: featuredArticle.author.name,
+      avatar: featuredArticle.author.avatar || "",
+    },
+    date: new Date(featuredArticle.created_at).toLocaleDateString("en-US", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }),
+    readTime: featuredArticle.read_time,
+    slug: featuredArticle.slug,
+  } as ArticleProps : null;
+
   return (
     <MainLayout>
       <section className="container mx-auto px-4 py-8">
@@ -52,8 +73,8 @@ const Index = () => {
               <p className="text-muted-foreground">Loading featured article...</p>
             </div>
           </div>
-        ) : featuredArticle ? (
-          <FeaturedArticle article={featuredArticle} />
+        ) : adaptedFeaturedArticle ? (
+          <FeaturedArticle article={adaptedFeaturedArticle} />
         ) : null}
 
         {/* Latest Articles Section */}

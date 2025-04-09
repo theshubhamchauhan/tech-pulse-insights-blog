@@ -19,6 +19,15 @@ export interface SimpleProfile {
   bio?: string | null;
 }
 
+// Author type for components that require avatar property
+export interface Author {
+  id: string;
+  name: string;
+  avatar: string;
+  role?: string | null;
+  bio?: string | null;
+}
+
 // Extended types for UI display
 export interface ArticleWithRelations extends Omit<Article, "author_id" | "category_id"> {
   author: SimpleProfile;

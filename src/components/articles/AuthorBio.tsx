@@ -1,15 +1,9 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-interface Author {
-  name: string;
-  avatar: string;
-  role?: string;
-  bio?: string;
-}
+import { SimpleProfile } from "@/lib/types";
 
 interface AuthorBioProps {
-  author: Author;
+  author: SimpleProfile;
 }
 
 const AuthorBio = ({ author }: AuthorBioProps) => {
@@ -18,8 +12,8 @@ const AuthorBio = ({ author }: AuthorBioProps) => {
       <div className="bg-muted p-8 rounded-lg">
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={author.avatar} />
-            <AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
+            <AvatarImage src={author.avatar || ""} />
+            <AvatarFallback>{author.name?.charAt(0) || 'A'}</AvatarFallback>
           </Avatar>
           <div>
             <h3 className="text-xl font-semibold">{author.name}</h3>
