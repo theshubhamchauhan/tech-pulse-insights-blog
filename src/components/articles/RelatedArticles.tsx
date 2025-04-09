@@ -1,7 +1,25 @@
 
 import { Separator } from "@/components/ui/separator";
 import ArticleGrid from "@/components/articles/ArticleGrid";
-import { ArticleProps } from "@/data/mockData";
+import { articles } from "@/data/mockData";
+
+interface ArticleProps {
+  id: string;
+  title: string;
+  excerpt: string;
+  coverImage: string;
+  category: string;
+  author: {
+    name: string;
+    avatar: string;
+    role?: string;
+    bio?: string;
+  };
+  date: string;
+  readTime: string;
+  slug: string;
+  featured?: boolean;
+}
 
 interface RelatedArticlesProps {
   articles: ArticleProps[];

@@ -1,4 +1,6 @@
 
+import { Badge } from "@/components/ui/badge";
+
 interface ArticleContentProps {
   coverImage: string;
   title: string;
