@@ -1,7 +1,7 @@
 
 import { ReactNode } from "react";
 import ArticleCard, { ArticleProps } from "./ArticleCard";
-import { ArticleWithRelations } from "@/lib/types";
+import { ArticleWithRelations, mapToArticleProps } from "@/lib/types";
 
 interface ArticleGridProps {
   articles: (ArticleProps | ArticleWithRelations)[];
@@ -28,6 +28,11 @@ const ArticleGrid = ({
     4: "md:grid-cols-2 lg:grid-cols-4",
   }[columns] || "md:grid-cols-3";
 
+  // Convert articles to proper format if needed
+  const normalizedArticles = articles.map(article => 
+    'coverImage' in article ? article : mapToArticleProps(article as ArticleWithRelations)
+  );
+
   return (
     <div className="w-full">
       {(title || description || action) && (
@@ -45,13 +50,13 @@ const ArticleGrid = ({
       )}
 
       <div className={`grid grid-cols-1 gap-6 ${colsClass}`}>
-        {featured && articles[0] && (
+        {featured && normalizedArticles[0] && (
           <div className="col-span-full mb-4">
-            <ArticleCard article={articles[0]} variant="featured" />
+            <ArticleCard article={normalizedArticles[0]} variant="featured" />
           </div>
         )}
         
-        {(featured ? articles.slice(1) : articles).map((article) => (
+        {(featured ? normalizedArticles.slice(1) : normalizedArticles).map((article) => (
           <ArticleCard key={article.id} article={article} />
         ))}
       </div>

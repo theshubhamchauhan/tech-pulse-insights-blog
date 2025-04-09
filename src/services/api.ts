@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { 
   ArticleWithRelations, 
@@ -49,7 +48,7 @@ export async function getArticles(): Promise<ArticleWithRelations[]> {
     .select(`
       *,
       author:author_id(id, name, avatar, role, bio),
-      category:category_id(id, name, slug)
+      category:category_id(*)
     `)
     .eq('status', 'published')
     .order('created_at', { ascending: false });
@@ -61,17 +60,17 @@ export async function getArticles(): Promise<ArticleWithRelations[]> {
     data.map(async (article) => {
       const { data: tagData, error: tagError } = await supabase
         .from('article_tags')
-        .select('tags(id, name, slug, created_at)')
+        .select('tags(*)')
         .eq('article_id', article.id);
       
       if (tagError) throw tagError;
       
-      const mappedArticle: ArticleWithRelations = {
+      const mappedArticle = {
         ...article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
         tags: tagData?.map(t => t.tags) || []
-      };
+      } as ArticleWithRelations;
       
       return mappedArticle;
     })
@@ -86,7 +85,7 @@ export async function getArticleBySlug(slug: string): Promise<ArticleWithRelatio
     .select(`
       *,
       author:author_id(id, name, avatar, role, bio),
-      category:category_id(id, name, slug)
+      category:category_id(*)
     `)
     .eq('slug', slug)
     .maybeSingle();
@@ -97,12 +96,12 @@ export async function getArticleBySlug(slug: string): Promise<ArticleWithRelatio
   // Fetch tags for the article
   const { data: tagData, error: tagError } = await supabase
     .from('article_tags')
-    .select('tags(id, name, slug, created_at)')
+    .select('tags(*)')
     .eq('article_id', data.id);
   
   if (tagError) throw tagError;
   
-  const mappedArticle: ArticleWithRelations = {
+  const mappedArticle = {
     ...data,
     author: data.author as SimpleProfile,
     category: data.category as Category,
@@ -118,7 +117,7 @@ export async function getFeaturedArticles(): Promise<ArticleWithRelations[]> {
     .select(`
       *,
       author:author_id(id, name, avatar, role, bio),
-      category:category_id(id, name, slug)
+      category:category_id(*)
     `)
     .eq('status', 'published')
     .eq('is_featured', true)
@@ -131,17 +130,17 @@ export async function getFeaturedArticles(): Promise<ArticleWithRelations[]> {
     data.map(async (article) => {
       const { data: tagData, error: tagError } = await supabase
         .from('article_tags')
-        .select('tags(id, name, slug, created_at)')
+        .select('tags(*)')
         .eq('article_id', article.id);
       
       if (tagError) throw tagError;
       
-      const mappedArticle: ArticleWithRelations = {
+      const mappedArticle = {
         ...article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
         tags: tagData?.map(t => t.tags) || []
-      };
+      } as ArticleWithRelations;
       
       return mappedArticle;
     })
@@ -165,7 +164,7 @@ export async function getArticlesByCategory(categorySlug: string): Promise<Artic
     .select(`
       *,
       author:author_id(id, name, avatar, role, bio),
-      category:category_id(id, name, slug)
+      category:category_id(*)
     `)
     .eq('status', 'published')
     .eq('category_id', category.id)
@@ -178,17 +177,17 @@ export async function getArticlesByCategory(categorySlug: string): Promise<Artic
     data.map(async (article) => {
       const { data: tagData, error: tagError } = await supabase
         .from('article_tags')
-        .select('tags(id, name, slug, created_at)')
+        .select('tags(*)')
         .eq('article_id', article.id);
       
       if (tagError) throw tagError;
       
-      const mappedArticle: ArticleWithRelations = {
+      const mappedArticle = {
         ...article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
         tags: tagData?.map(t => t.tags) || []
-      };
+      } as ArticleWithRelations;
       
       return mappedArticle;
     })
@@ -344,7 +343,7 @@ export async function getUserFavorites(): Promise<ArticleWithRelations[]> {
     .select(`
       *,
       author:author_id(id, name, avatar, role, bio),
-      category:category_id(id, name, slug)
+      category:category_id(*)
     `)
     .in('id', articleIds)
     .eq('status', 'published')
@@ -357,17 +356,17 @@ export async function getUserFavorites(): Promise<ArticleWithRelations[]> {
     data.map(async (article) => {
       const { data: tagData, error: tagError } = await supabase
         .from('article_tags')
-        .select('tags(id, name, slug, created_at)')
+        .select('tags(*)')
         .eq('article_id', article.id);
       
       if (tagError) throw tagError;
       
-      const mappedArticle: ArticleWithRelations = {
+      const mappedArticle = {
         ...article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
         tags: tagData?.map(t => t.tags) || []
-      };
+      } as ArticleWithRelations;
       
       return mappedArticle;
     })

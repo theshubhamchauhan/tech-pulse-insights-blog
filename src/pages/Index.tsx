@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import FeaturedArticle from "@/components/home/FeaturedArticle";
 import ArticleGrid from "@/components/articles/ArticleGrid";
 import { getArticles, getFeaturedArticles, getCategories } from "@/services/api";
 import { ArticleProps } from "@/components/articles/ArticleCard";
+import { mapToArticleProps } from "@/lib/types";
 
 const Index = () => {
   // Fetch articles
@@ -43,24 +43,10 @@ const Index = () => {
   const topCategories = categories.slice(0, 4);
 
   // Convert featuredArticle to ArticleProps format for FeaturedArticle component
-  const adaptedFeaturedArticle = featuredArticle ? {
-    id: featuredArticle.id,
-    title: featuredArticle.title,
-    excerpt: featuredArticle.excerpt,
-    coverImage: featuredArticle.cover_image,
-    category: featuredArticle.category.name,
-    author: {
-      name: featuredArticle.author.name,
-      avatar: featuredArticle.author.avatar || "",
-    },
-    date: new Date(featuredArticle.created_at).toLocaleDateString("en-US", {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }),
-    readTime: featuredArticle.read_time,
-    slug: featuredArticle.slug,
-  } as ArticleProps : null;
+  const adaptedFeaturedArticle = featuredArticle ? mapToArticleProps(featuredArticle) : null;
+
+  // Convert articles to ArticleProps format for ArticleGrid component
+  const adaptedArticles = latestArticles.map(mapToArticleProps);
 
   return (
     <MainLayout>
@@ -86,7 +72,7 @@ const Index = () => {
             </div>
           ) : (
             <ArticleGrid
-              articles={latestArticles}
+              articles={adaptedArticles}
               title="Latest Articles"
               description="Discover our most recent insights, case studies, and analysis on the latest technology trends and innovations."
               action={

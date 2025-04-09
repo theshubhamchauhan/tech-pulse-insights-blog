@@ -35,7 +35,7 @@ export interface ArticleWithRelations extends Omit<Article, "author_id" | "categ
   tags: Tag[];
 }
 
-export interface CommentWithAuthor extends Comment {
+export interface CommentWithAuthor extends Omit<Comment, "author_id"> {
   author: SimpleProfile;
   replies?: CommentWithAuthor[];
 }
@@ -45,3 +45,37 @@ export interface Session {
   isAuthenticated: boolean;
   isLoading: boolean;
 }
+
+// Mapping functions to convert between types
+export const mapToArticleProps = (article: ArticleWithRelations) => {
+  return {
+    id: article.id,
+    title: article.title,
+    excerpt: article.excerpt,
+    coverImage: article.cover_image,
+    category: article.category.name,
+    author: {
+      name: article.author.name,
+      avatar: article.author.avatar || "",
+    },
+    date: new Date(article.created_at).toLocaleDateString("en-US", {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }),
+    readTime: article.read_time,
+    slug: article.slug,
+    featured: article.is_featured,
+    isFavorite: false,
+  };
+};
+
+export const ensureAuthor = (profile: SimpleProfile): Author => {
+  return {
+    id: profile.id,
+    name: profile.name,
+    avatar: profile.avatar || "",
+    role: profile.role,
+    bio: profile.bio,
+  };
+};

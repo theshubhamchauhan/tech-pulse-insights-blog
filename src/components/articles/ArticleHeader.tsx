@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, BookmarkPlus, Share2, BookmarkCheck } from "lucide-react";
-import { SimpleProfile } from "@/lib/types";
+import { SimpleProfile, ensureAuthor } from "@/lib/types";
 
 interface ArticleHeaderProps {
   title: string;
@@ -28,6 +28,9 @@ const ArticleHeader = ({
   onShare,
   isFavorite = false,
 }: ArticleHeaderProps) => {
+  // Convert SimpleProfile to Author to ensure avatar is not null
+  const authorWithAvatar = ensureAuthor(author);
+
   return (
     <header className="max-w-4xl mx-auto mb-12">
       <div className="mb-6 flex items-center space-x-2">
@@ -53,12 +56,12 @@ const ArticleHeader = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Avatar className="h-12 w-12">
-            <AvatarImage src={author.avatar || ""} />
-            <AvatarFallback>{author.name?.charAt(0) || 'A'}</AvatarFallback>
+            <AvatarImage src={authorWithAvatar.avatar} />
+            <AvatarFallback>{authorWithAvatar.name.charAt(0) || 'A'}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-medium">{author.name}</p>
-            {author.role && <p className="text-sm text-muted-foreground">{author.role}</p>}
+            <p className="font-medium">{authorWithAvatar.name}</p>
+            {authorWithAvatar.role && <p className="text-sm text-muted-foreground">{authorWithAvatar.role}</p>}
           </div>
         </div>
         

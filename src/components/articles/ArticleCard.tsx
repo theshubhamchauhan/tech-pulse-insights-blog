@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BookmarkPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArticleWithRelations } from "@/lib/types";
+import { ArticleWithRelations, mapToArticleProps } from "@/lib/types";
 
 export interface ArticleProps {
   id: string;
@@ -33,24 +33,7 @@ const ArticleCard = ({ article, variant = "default" }: ArticleCardProps) => {
 
   const normalizedArticle: ArticleProps = 'coverImage' in article 
     ? article as ArticleProps
-    : {
-        id: article.id,
-        title: article.title,
-        excerpt: article.excerpt,
-        coverImage: article.cover_image,
-        category: article.category.name,
-        author: {
-          name: article.author.name,
-          avatar: article.author.avatar || '',
-        },
-        date: new Date(article.created_at).toLocaleDateString("en-US", {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
-        readTime: article.read_time,
-        slug: article.slug,
-      };
+    : mapToArticleProps(article as ArticleWithRelations);
 
   const handleAddToFavorites = (e: React.MouseEvent) => {
     e.preventDefault();
