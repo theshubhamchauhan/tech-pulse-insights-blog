@@ -74,13 +74,15 @@ const statusLabels = {
 const ArticleManagement = () => {
   const { toast } = useToast();
   
-  // Mock article data with random status and views
+  // Convert the articles to the format needed by the component
   const articleData: ArticleData[] = articles.map((article) => ({
     id: article.id,
     title: article.title,
-    category: article.category,
-    author: article.author,
-    date: article.date,
+    category: article.category.name,
+    author: {
+      name: article.author.name
+    },
+    date: new Date(article.created_at).toLocaleDateString(),
     status: ["published", "draft", "scheduled"][Math.floor(Math.random() * 3)] as ArticleStatus,
     views: Math.floor(Math.random() * 10000),
     slug: article.slug,

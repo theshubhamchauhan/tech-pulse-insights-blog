@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const adminEmail = "admin@duckcod.com";
         const adminPassword = "Admin123!";
         
-        // Check if user with this ID exists - use getUserById instead of getUserByEmail
+        // Check if user with this name exists - use getUserById instead of getUserByEmail
         const { data: existingUsers, error: userCheckError } = await supabase
           .from("profiles")
           .select("id")

@@ -358,7 +358,7 @@ const ArticleEditor = () => {
         category_id: article.category_id,
         cover_image: article.cover_image,
         read_time: article.read_time,
-        status: article.status as "published" | "draft" | "scheduled",
+        status: article.status,
         is_featured: article.is_featured,
         author_id: user.id,
         meta_title: seo.meta_title || null,

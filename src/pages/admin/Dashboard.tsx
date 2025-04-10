@@ -11,7 +11,7 @@ import {
   PieChart,
   LineChart,
 } from "lucide-react";
-import { articles, comments } from "@/data/mockData";
+import { articles } from "@/data/mockData";
 
 const Dashboard = () => {
   return (
@@ -57,7 +57,7 @@ const Dashboard = () => {
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{comments.length}</div>
+            <div className="text-2xl font-bold">156</div>
             <p className="text-xs text-muted-foreground">
               +{Math.floor(Math.random() * 15)}% from last month
             </p>
@@ -129,14 +129,16 @@ const Dashboard = () => {
                     <div key={article.id} className="flex items-center space-x-4">
                       <div className="w-12 h-12 rounded bg-muted flex-shrink-0 overflow-hidden">
                         <img
-                          src={article.coverImage}
+                          src={article.cover_image}
                           alt={article.title}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div>
                         <p className="text-sm font-medium line-clamp-1">{article.title}</p>
-                        <p className="text-xs text-muted-foreground">{article.date}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(article.created_at).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
                   ))}

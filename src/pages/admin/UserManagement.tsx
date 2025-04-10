@@ -68,6 +68,8 @@ const userFormSchema = z.object({
   avatar: z.string().url({ message: "Avatar must be a valid URL" }).optional(),
 });
 
+type UserRole = "user" | "author" | "admin";
+
 const UserManagement = () => {
   const { toast } = useToast();
   const [users, setUsers] = useState<Profile[]>([]);
@@ -109,7 +111,7 @@ const UserManagement = () => {
       editUserForm.reset({
         name: currentUser.name,
         email: "",
-        role: currentUser.role || "user",
+        role: (currentUser.role as UserRole) || "user",
         bio: currentUser.bio || "",
         avatar: currentUser.avatar || "",
       });
@@ -144,7 +146,7 @@ const UserManagement = () => {
         email_confirm: true,
         user_metadata: {
           name: values.name,
-          role: values.role,
+          role: values.role as UserRole,
           bio: values.bio || null,
           avatar: values.avatar || null,
         },
