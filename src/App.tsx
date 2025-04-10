@@ -25,44 +25,40 @@ import FavoritesPage from "./pages/FavoritesPage";
 
 const queryClient = new QueryClient();
 
-const AppRoutes = () => (
-  <Routes>
-    <Route path="/" element={<Index />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
-    <Route path="/article/:slug" element={<ArticleDetail />} />
-    <Route path="/categories" element={<Categories />} />
-    <Route path="/categories/:slug" element={<Categories />} />
-    <Route path="/profile" element={<ProfilePage />} />
-    <Route path="/favorites" element={<FavoritesPage />} />
-    <Route path="/about" element={<About />} />
-    
-    {/* Admin Routes */}
-    <Route path="/admin" element={<AdminDashboard />}>
-      <Route index element={<Dashboard />} />
-      <Route path="articles" element={<ArticleManagement />} />
-      <Route path="articles/new" element={<ArticleEditor />} />
-      <Route path="articles/edit/:id" element={<ArticleEditor />} />
-      <Route path="categories" element={<CategoryManagement />} />
-      <Route path="users" element={<UserManagement />} />
-      {/* Additional admin routes would be added here */}
-    </Route>
-    
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-);
-
 const App = () => (
   <BrowserRouter>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
+      <TooltipProvider>
+        <AuthProvider>
           <Toaster />
           <Sonner />
-          <AppRoutes />
-        </TooltipProvider>
-      </AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/article/:slug" element={<ArticleDetail />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/categories/:slug" element={<Categories />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
+            <Route path="/about" element={<About />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />}>
+              <Route index element={<Dashboard />} />
+              <Route path="articles" element={<ArticleManagement />} />
+              <Route path="articles/new" element={<ArticleEditor />} />
+              <Route path="articles/edit/:id" element={<ArticleEditor />} />
+              <Route path="categories" element={<CategoryManagement />} />
+              <Route path="users" element={<UserManagement />} />
+              {/* Additional admin routes would be added here */}
+            </Route>
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   </BrowserRouter>
 );
