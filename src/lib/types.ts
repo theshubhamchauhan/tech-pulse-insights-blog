@@ -10,13 +10,13 @@ export type Tag = Database["public"]["Tables"]["tags"]["Row"];
 export type BaseArticle = Database["public"]["Tables"]["articles"]["Row"];
 
 // Extended article type with SEO fields
-export interface Article extends BaseArticle {
+export type Article = BaseArticle & {
   meta_title?: string | null;
   meta_description?: string | null;
   meta_keywords?: string | null;
   canonical_url?: string | null;
   og_image?: string | null;
-}
+};
 
 export type Comment = Database["public"]["Tables"]["comments"]["Row"];
 export type Favorite = Database["public"]["Tables"]["favorites"]["Row"];
@@ -44,11 +44,11 @@ export interface Author {
 }
 
 // Extended types for UI display
-export interface ArticleWithRelations extends Article {
+export type ArticleWithRelations = Omit<Article, "author_id" | "category_id"> & {
   author: SimpleProfile;
   category: Category;
   tags: Tag[];
-}
+};
 
 export interface CommentWithAuthor extends Omit<Comment, "author_id"> {
   author: SimpleProfile;

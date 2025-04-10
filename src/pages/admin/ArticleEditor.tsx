@@ -178,24 +178,26 @@ const ArticleEditor = () => {
       const tags = articleTags?.map(item => item.tags) || [];
       setSelectedTags(tags);
       
+      const articleWithSeo = article as unknown as Article;
+      
       form.reset({
         article: {
-          title: article.title,
-          slug: article.slug,
-          excerpt: article.excerpt,
-          content: article.content,
-          category_id: article.category_id,
-          cover_image: article.cover_image,
-          read_time: article.read_time,
-          status: (article.status as ArticleStatus) || "draft",
-          is_featured: article.is_featured || false,
+          title: articleWithSeo.title,
+          slug: articleWithSeo.slug,
+          excerpt: articleWithSeo.excerpt,
+          content: articleWithSeo.content,
+          category_id: articleWithSeo.category_id,
+          cover_image: articleWithSeo.cover_image,
+          read_time: articleWithSeo.read_time,
+          status: (articleWithSeo.status as ArticleStatus) || "draft",
+          is_featured: articleWithSeo.is_featured || false,
         },
         seo: {
-          meta_title: article.meta_title || "",
-          meta_description: article.meta_description || "",
-          meta_keywords: article.meta_keywords || "",
-          canonical_url: article.canonical_url || "",
-          og_image: article.og_image || "",
+          meta_title: articleWithSeo.meta_title || "",
+          meta_description: articleWithSeo.meta_description || "",
+          meta_keywords: articleWithSeo.meta_keywords || "",
+          canonical_url: articleWithSeo.canonical_url || "",
+          og_image: articleWithSeo.og_image || "",
         },
       });
     } catch (error: any) {
