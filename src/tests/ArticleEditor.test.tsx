@@ -43,7 +43,7 @@ vi.mock('@/contexts/AuthContext', () => ({
     user: { id: 'test-user-id' },
     isAuthenticated: true,
   })),
-  AuthProvider: ({ children }) => {
+  AuthProvider: ({ children }: { children: React.ReactNode }) => {
     return <div>{children}</div>;
   },
 }));
