@@ -6,8 +6,11 @@ export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Tag = Database["public"]["Tables"]["tags"]["Row"];
 
-// Base Article type from database schema, extended with SEO fields
-export interface Article extends Database["public"]["Tables"]["articles"]["Row"] {
+// Base types from database schema
+export type BaseArticle = Database["public"]["Tables"]["articles"]["Row"];
+
+// Extended article type with SEO fields
+export interface Article extends BaseArticle {
   meta_title?: string | null;
   meta_description?: string | null;
   meta_keywords?: string | null;
