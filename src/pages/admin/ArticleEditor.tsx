@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,7 +67,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Category, Tag as TagType } from "@/lib/types";
 
-// Form schema for article
 const articleFormSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters" }),
   slug: z.string().min(5, { message: "Slug must be at least 5 characters" })
@@ -87,7 +85,6 @@ const articleFormSchema = z.object({
   is_featured: z.boolean().default(false),
 });
 
-// Form schema for SEO metadata
 const seoFormSchema = z.object({
   meta_title: z.string().max(60, { message: "Meta title should not exceed 60 characters" }).optional(),
   meta_description: z.string().max(160, { message: "Meta description should not exceed 160 characters" }).optional(),
@@ -96,7 +93,6 @@ const seoFormSchema = z.object({
   og_image: z.string().url({ message: "Please enter a valid URL for the OG image" }).optional().or(z.literal('')),
 });
 
-// Combine article and SEO forms
 const formSchema = z.object({
   article: articleFormSchema,
   seo: seoFormSchema,
@@ -142,13 +138,11 @@ const ArticleEditor = () => {
     },
   });
 
-  // Load article data if in edit mode
   useEffect(() => {
     if (id && id !== 'new') {
       loadArticle(id);
     }
     
-    // Focus on title input when component mounts in new mode
     if (!id || id === 'new') {
       setTimeout(() => {
         if (titleInputRef.current) {
@@ -157,7 +151,6 @@ const ArticleEditor = () => {
       }, 100);
     }
     
-    // Fetch categories and tags
     fetchCategories();
     fetchTags();
   }, [id]);
@@ -166,7 +159,6 @@ const ArticleEditor = () => {
     try {
       setIsLoading(true);
       
-      // Fetch article data
       const { data: article, error: articleError } = await supabase
         .from("articles")
         .select("*")
@@ -176,7 +168,6 @@ const ArticleEditor = () => {
       if (articleError) throw articleError;
       if (!article) throw new Error("Article not found");
       
-      // Fetch article tags
       const { data: articleTags, error: tagsError } = await supabase
         .from("article_tags")
         .select("tags(*)")
@@ -187,7 +178,6 @@ const ArticleEditor = () => {
       const tags = articleTags?.map(item => item.tags) || [];
       setSelectedTags(tags);
       
-      // Set form values
       form.reset({
         article: {
           title: article.title,
@@ -260,7 +250,6 @@ const ArticleEditor = () => {
   const handleTitleChange = (title: string) => {
     form.setValue("article.title", title);
     
-    // If slug hasn't been manually edited, update it based on the title
     const currentSlug = form.getValues("article.slug");
     const derivedSlug = generateSlug(title);
     
@@ -268,7 +257,6 @@ const ArticleEditor = () => {
       form.setValue("article.slug", derivedSlug);
     }
     
-    // Update SEO meta title if not set
     const currentMetaTitle = form.getValues("seo.meta_title");
     if (!currentMetaTitle) {
       form.setValue("seo.meta_title", title);
@@ -278,7 +266,6 @@ const ArticleEditor = () => {
   const handleExcerptChange = (excerpt: string) => {
     form.setValue("article.excerpt", excerpt);
     
-    // Update SEO meta description if not set
     const currentMetaDescription = form.getValues("seo.meta_description");
     if (!currentMetaDescription) {
       form.setValue("seo.meta_description", excerpt);
@@ -289,13 +276,11 @@ const ArticleEditor = () => {
     if (!newTagName.trim()) return;
     
     try {
-      // Check if tag already exists
       const existingTag = availableTags.find(
         tag => tag.name.toLowerCase() === newTagName.trim().toLowerCase()
       );
       
       if (existingTag) {
-        // If tag exists and not already selected, add it to selected tags
         if (!selectedTags.some(tag => tag.id === existingTag.id)) {
           setSelectedTags([...selectedTags, existingTag]);
         }
@@ -303,7 +288,6 @@ const ArticleEditor = () => {
         return;
       }
       
-      // Create a new tag
       const slug = generateSlug(newTagName);
       
       const { data: newTag, error } = await supabase
@@ -317,7 +301,6 @@ const ArticleEditor = () => {
       
       if (error) throw error;
       
-      // Add new tag to available tags and selected tags
       setAvailableTags([...availableTags, newTag]);
       setSelectedTags([...selectedTags, newTag]);
       setNewTagName("");
@@ -329,14 +312,11 @@ const ArticleEditor = () => {
   };
 
   const toggleTag = (tag: TagType) => {
-    // Check if tag is already selected
     const isSelected = selectedTags.some(t => t.id === tag.id);
     
     if (isSelected) {
-      // Remove tag from selected tags
       setSelectedTags(selectedTags.filter(t => t.id !== tag.id));
     } else {
-      // Add tag to selected tags
       setSelectedTags([...selectedTags, tag]);
     }
   };
@@ -355,7 +335,6 @@ const ArticleEditor = () => {
   const handleContentChange = (content: string) => {
     form.setValue("article.content", content);
     
-    // Update read time based on content length
     const readTime = estimateReadTime(content);
     form.setValue("article.read_time", readTime);
   };
@@ -371,18 +350,27 @@ const ArticleEditor = () => {
       
       const { article, seo } = data;
       
-      // Combine article and SEO data
       const articleData = {
-        ...article,
-        ...seo,
+        title: article.title,
+        slug: article.slug,
+        excerpt: article.excerpt,
+        content: article.content,
+        category_id: article.category_id,
+        cover_image: article.cover_image,
+        read_time: article.read_time,
+        status: article.status as "published" | "draft" | "scheduled",
+        is_featured: article.is_featured,
         author_id: user.id,
+        meta_title: seo.meta_title || null,
+        meta_description: seo.meta_description || null,
+        meta_keywords: seo.meta_keywords || null,
+        canonical_url: seo.canonical_url || null,
+        og_image: seo.og_image || null,
       };
       
       let articleId = id && id !== 'new' ? id : undefined;
       
-      // Create or update article
       if (articleId) {
-        // Update existing article
         const { data, error } = await supabase
           .from("articles")
           .update(articleData)
@@ -393,7 +381,6 @@ const ArticleEditor = () => {
         if (error) throw error;
         articleId = data.id;
       } else {
-        // Create new article
         const { data, error } = await supabase
           .from("articles")
           .insert(articleData)
@@ -404,9 +391,7 @@ const ArticleEditor = () => {
         articleId = data.id;
       }
       
-      // Handle article tags
       if (articleId) {
-        // First, remove existing tag associations
         const { error: deleteError } = await supabase
           .from("article_tags")
           .delete()
@@ -414,7 +399,6 @@ const ArticleEditor = () => {
         
         if (deleteError) throw deleteError;
         
-        // Then add new tag associations
         if (selectedTags.length > 0) {
           const tagAssociations = selectedTags.map(tag => ({
             article_id: articleId,
@@ -440,7 +424,6 @@ const ArticleEditor = () => {
         }
       );
       
-      // Redirect to article management after a delay
       setTimeout(() => {
         navigate(`/admin/articles`);
       }, 2000);
@@ -453,7 +436,6 @@ const ArticleEditor = () => {
     }
   };
 
-  // Get status badge color
   const getStatusColor = (status: string) => {
     switch (status) {
       case "published":
@@ -467,7 +449,6 @@ const ArticleEditor = () => {
     }
   };
 
-  // Get status icon
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "published":
@@ -569,14 +550,12 @@ const ArticleEditor = () => {
         <Form {...form}>
           <form className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Main content area */}
               <div className={`lg:col-span-${showSettings ? '2' : '3'}`}>
                 <Card>
                   <CardHeader>
                     <CardTitle>Article Content</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Title */}
                     <FormField
                       control={form.control}
                       name="article.title"
@@ -600,7 +579,6 @@ const ArticleEditor = () => {
                       )}
                     />
                     
-                    {/* Slug */}
                     <FormField
                       control={form.control}
                       name="article.slug"
@@ -622,7 +600,6 @@ const ArticleEditor = () => {
                       )}
                     />
                     
-                    {/* Excerpt */}
                     <FormField
                       control={form.control}
                       name="article.excerpt"
@@ -649,7 +626,6 @@ const ArticleEditor = () => {
                       )}
                     />
                     
-                    {/* Content */}
                     <FormField
                       control={form.control}
                       name="article.content"
@@ -683,10 +659,8 @@ const ArticleEditor = () => {
                 </Card>
               </div>
 
-              {/* Settings panel */}
               {showSettings && (
                 <div className="lg:col-span-1 space-y-6">
-                  {/* Category, Image, Status */}
                   <Card>
                     <CardHeader>
                       <CardTitle>Article Settings</CardTitle>
@@ -853,7 +827,6 @@ const ArticleEditor = () => {
                     </CardContent>
                   </Card>
                   
-                  {/* Tags */}
                   <Card>
                     <CardHeader>
                       <CardTitle>Tags</CardTitle>
@@ -925,7 +898,6 @@ const ArticleEditor = () => {
                     </CardContent>
                   </Card>
                   
-                  {/* SEO Settings */}
                   <Card>
                     <CardHeader>
                       <CardTitle>SEO Settings</CardTitle>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,7 +59,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Profile } from "@/lib/types";
 
-// Define the form schemas for adding/editing users
 const userFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Invalid email address" }),
@@ -140,7 +138,6 @@ const UserManagement = () => {
 
   const handleAddUser = async (values: z.infer<typeof userFormSchema>) => {
     try {
-      // Step 1: Create auth user
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: values.email,
         password: values.password || generateRandomPassword(),
@@ -155,7 +152,6 @@ const UserManagement = () => {
 
       if (authError) throw authError;
 
-      // Step 2: Update profile with role
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -188,7 +184,6 @@ const UserManagement = () => {
     if (!currentUser) return;
     
     try {
-      // Update profile
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -201,7 +196,6 @@ const UserManagement = () => {
 
       if (profileError) throw profileError;
 
-      // Reset password if provided
       if (values.password) {
         const { error: passwordError } = await supabase.auth.admin.updateUserById(
           currentUser.id,
@@ -477,7 +471,6 @@ const UserManagement = () => {
                       </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Edit User Dialog */}
                     <Dialog open={isEditUserOpen && currentUser?.id === user.id} onOpenChange={(open) => {
                       if (!open) {
                         setIsEditUserOpen(false);
