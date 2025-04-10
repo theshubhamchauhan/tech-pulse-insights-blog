@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -359,7 +358,7 @@ const ArticleEditor = () => {
         category_id: article.category_id,
         cover_image: article.cover_image,
         read_time: article.read_time,
-        status: article.status,
+        status: article.status as ArticleStatus,
         is_featured: article.is_featured,
         author_id: user.id,
         meta_title: seo.meta_title || null,

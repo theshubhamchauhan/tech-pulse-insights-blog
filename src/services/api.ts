@@ -5,7 +5,8 @@ import type {
   Profile, 
   SimpleProfile,
   Category, 
-  Tag
+  Tag,
+  ArticleStatus
 } from "@/lib/types";
 
 // Categories
@@ -69,7 +70,12 @@ export async function getArticles(): Promise<ArticleWithRelations[]> {
         ...article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
-        tags: tagData?.map(t => t.tags) || []
+        tags: tagData?.map(t => t.tags) || [],
+        meta_title: article.meta_title,
+        meta_description: article.meta_description,
+        meta_keywords: article.meta_keywords,
+        canonical_url: article.canonical_url,
+        og_image: article.og_image
       } as ArticleWithRelations;
       
       return mappedArticle;
