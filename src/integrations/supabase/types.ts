@@ -42,6 +42,7 @@ export type Database = {
       articles: {
         Row: {
           author_id: string
+          canonical_url: string | null
           category_id: string
           content: string
           cover_image: string
@@ -49,6 +50,10 @@ export type Database = {
           excerpt: string
           id: string
           is_featured: boolean | null
+          meta_description: string | null
+          meta_keywords: string | null
+          meta_title: string | null
+          og_image: string | null
           read_time: string
           slug: string
           status: string | null
@@ -57,6 +62,7 @@ export type Database = {
         }
         Insert: {
           author_id: string
+          canonical_url?: string | null
           category_id: string
           content: string
           cover_image: string
@@ -64,6 +70,10 @@ export type Database = {
           excerpt: string
           id?: string
           is_featured?: boolean | null
+          meta_description?: string | null
+          meta_keywords?: string | null
+          meta_title?: string | null
+          og_image?: string | null
           read_time: string
           slug: string
           status?: string | null
@@ -72,6 +82,7 @@ export type Database = {
         }
         Update: {
           author_id?: string
+          canonical_url?: string | null
           category_id?: string
           content?: string
           cover_image?: string
@@ -79,6 +90,10 @@ export type Database = {
           excerpt?: string
           id?: string
           is_featured?: boolean | null
+          meta_description?: string | null
+          meta_keywords?: string | null
+          meta_title?: string | null
+          og_image?: string | null
           read_time?: string
           slug?: string
           status?: string | null
