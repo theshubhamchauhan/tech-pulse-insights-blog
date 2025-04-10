@@ -16,6 +16,9 @@ export type Comment = Database["public"]["Tables"]["comments"]["Row"];
 export type Favorite = Database["public"]["Tables"]["favorites"]["Row"];
 export type ArticleTag = Database["public"]["Tables"]["article_tags"]["Row"];
 
+// Article status type
+export type ArticleStatus = "published" | "draft" | "scheduled";
+
 // Simplified Profile type that doesn't require all DB fields
 export interface SimpleProfile {
   id: string;
