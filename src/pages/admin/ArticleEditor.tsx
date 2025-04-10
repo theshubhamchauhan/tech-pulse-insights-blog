@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -61,6 +62,14 @@ import {
   Upload,
   CheckCircle,
   AlertTriangle,
+  Bold,
+  Italic,
+  Link,
+  Heading,
+  List,
+  ListOrdered,
+  Quote,
+  Code,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -76,8 +85,8 @@ const articleFormSchema = z.object({
   excerpt: z.string().min(10, { message: "Excerpt must be at least 10 characters" })
     .max(200, { message: "Excerpt cannot exceed 200 characters" }),
   content: z.string().min(50, { message: "Content must be at least 50 characters" }),
-  category_id: z.string().uuid({ message: "Please select a category" }),
-  cover_image: z.string().url({ message: "Please enter a valid URL for the cover image" }),
+  category_id: z.string({ message: "Please select a category" }),
+  cover_image: z.string().url({ message: "Please enter a valid URL for the cover image" }).optional().or(z.literal('')),
   read_time: z.string().min(1, { message: "Please provide estimated read time" }),
   status: z.enum(["published", "draft", "scheduled"], { 
     required_error: "Please select a status" 
@@ -178,29 +187,28 @@ const ArticleEditor = () => {
       const tags = articleTags?.map(item => item.tags) || [];
       setSelectedTags(tags);
       
-      const articleWithSeo = article as unknown as Article;
-      
       form.reset({
         article: {
-          title: articleWithSeo.title,
-          slug: articleWithSeo.slug,
-          excerpt: articleWithSeo.excerpt,
-          content: articleWithSeo.content,
-          category_id: articleWithSeo.category_id,
-          cover_image: articleWithSeo.cover_image,
-          read_time: articleWithSeo.read_time,
-          status: (articleWithSeo.status as ArticleStatus) || "draft",
-          is_featured: articleWithSeo.is_featured || false,
+          title: article.title,
+          slug: article.slug,
+          excerpt: article.excerpt,
+          content: article.content,
+          category_id: article.category_id,
+          cover_image: article.cover_image || "",
+          read_time: article.read_time,
+          status: (article.status as ArticleStatus) || "draft",
+          is_featured: article.is_featured || false,
         },
         seo: {
-          meta_title: articleWithSeo.meta_title || "",
-          meta_description: articleWithSeo.meta_description || "",
-          meta_keywords: articleWithSeo.meta_keywords || "",
-          canonical_url: articleWithSeo.canonical_url || "",
-          og_image: articleWithSeo.og_image || "",
+          meta_title: article.meta_title || "",
+          meta_description: article.meta_description || "",
+          meta_keywords: article.meta_keywords || "",
+          canonical_url: article.canonical_url || "",
+          og_image: article.og_image || "",
         },
       });
     } catch (error: any) {
+      console.error("Error loading article:", error);
       toast.error("Error loading article", {
         description: error.message,
       });
@@ -219,6 +227,7 @@ const ArticleEditor = () => {
       if (error) throw error;
       setCategories(data || []);
     } catch (error: any) {
+      console.error("Error fetching categories:", error);
       toast.error("Error fetching categories", {
         description: error.message,
       });
@@ -235,6 +244,7 @@ const ArticleEditor = () => {
       if (error) throw error;
       setAvailableTags(data || []);
     } catch (error: any) {
+      console.error("Error fetching tags:", error);
       toast.error("Error fetching tags", {
         description: error.message,
       });
@@ -307,6 +317,7 @@ const ArticleEditor = () => {
       setSelectedTags([...selectedTags, newTag]);
       setNewTagName("");
     } catch (error: any) {
+      console.error("Error adding tag:", error);
       toast.error("Error adding tag", {
         description: error.message,
       });
@@ -341,6 +352,46 @@ const ArticleEditor = () => {
     form.setValue("article.read_time", readTime);
   };
 
+  const insertMarkdown = (markdownSymbol: string, selectionReplace?: (selected: string) => string) => {
+    const textarea = contentEditorRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selected = text.substring(start, end);
+
+    let newText;
+    if (selectionReplace) {
+      // Custom replacement function
+      newText = text.substring(0, start) + selectionReplace(selected) + text.substring(end);
+      textarea.value = newText;
+    } else {
+      // Simple insertion
+      newText = text.substring(0, start) + markdownSymbol + selected + markdownSymbol + text.substring(end);
+      textarea.value = newText;
+    }
+
+    form.setValue("article.content", newText);
+    
+    // Reset cursor position
+    setTimeout(() => {
+      textarea.focus();
+      if (selectionReplace) {
+        // Place cursor after the inserted content
+        const newPosition = start + selectionReplace(selected).length;
+        textarea.setSelectionRange(newPosition, newPosition);
+      } else {
+        // Place cursor after the first markdown symbol if there's no selection
+        // or after the entire insertion if there is
+        textarea.setSelectionRange(
+          selected.length ? end + markdownSymbol.length * 2 : start + markdownSymbol.length,
+          selected.length ? end + markdownSymbol.length * 2 : start + markdownSymbol.length
+        );
+      }
+    }, 0);
+  };
+
   const saveArticle = async (data: z.infer<typeof formSchema>) => {
     if (!user) {
       toast.error("You must be logged in to save an article");
@@ -358,7 +409,7 @@ const ArticleEditor = () => {
         excerpt: article.excerpt,
         content: article.content,
         category_id: article.category_id,
-        cover_image: article.cover_image,
+        cover_image: article.cover_image || null,
         read_time: article.read_time,
         status: article.status,
         is_featured: article.is_featured,
@@ -638,22 +689,110 @@ const ArticleEditor = () => {
                           {previewMode ? (
                             <div 
                               className="border rounded-md p-4 min-h-[300px] prose max-w-none"
-                              dangerouslySetInnerHTML={{ __html: field.value }}
+                              dangerouslySetInnerHTML={{ __html: field.value.replace(/\n/g, '<br>') }}
                             />
                           ) : (
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Write your article content here..."
-                                className="min-h-[300px]"
-                                ref={contentEditorRef}
-                                {...field}
-                                onChange={(e) => {
-                                  field.onChange(e);
-                                  handleContentChange(e.target.value);
-                                }}
-                              />
-                            </FormControl>
+                            <>
+                              <div className="flex flex-wrap gap-1 mb-2 p-1 border rounded-md bg-slate-50">
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 px-2"
+                                  onClick={() => insertMarkdown('**')}
+                                >
+                                  <Bold className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-8 px-2"
+                                  onClick={() => insertMarkdown('*')}
+                                >
+                                  <Italic className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-8 px-2"
+                                  onClick={() => insertMarkdown('[', (selected) => `[${selected}](url)`)}
+                                >
+                                  <Link className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-8 px-2"
+                                  onClick={() => insertMarkdown('![', (selected) => `![${selected}](url)`)}
+                                >
+                                  <Image className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-8 px-2"
+                                  onClick={() => insertMarkdown('## ', (selected) => `## ${selected}`)}
+                                >
+                                  <Heading className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-8 px-2"
+                                  onClick={() => insertMarkdown('> ', (selected) => `> ${selected}`)}
+                                >
+                                  <Quote className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-8 px-2"
+                                  onClick={() => insertMarkdown('- ', (selected) => selected.split('\n').map(line => `- ${line}`).join('\n'))}
+                                >
+                                  <List className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-8 px-2"
+                                  onClick={() => insertMarkdown('1. ', (selected) => selected.split('\n').map((line, i) => `${i+1}. ${line}`).join('\n'))}
+                                >
+                                  <ListOrdered className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-8 px-2"
+                                  onClick={() => insertMarkdown('```', (selected) => `\`\`\`\n${selected}\n\`\`\``)}
+                                >
+                                  <Code className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <FormControl>
+                                <Textarea 
+                                  placeholder="Write your article content here..."
+                                  className="min-h-[300px] font-mono"
+                                  ref={contentEditorRef}
+                                  {...field}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    handleContentChange(e.target.value);
+                                  }}
+                                />
+                              </FormControl>
+                            </>
                           )}
+                          <FormDescription>
+                            {!previewMode && 'Use Markdown syntax for formatting. The toolbar buttons will help you add common elements.'}
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -702,11 +841,15 @@ const ArticleEditor = () => {
                         name="article.cover_image"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Cover Image URL</FormLabel>
+                            <FormLabel>Cover Image</FormLabel>
                             <FormControl>
                               <div className="space-y-2">
                                 <div className="flex items-center">
-                                  <Input placeholder="https://example.com/image.jpg" {...field} />
+                                  <Input 
+                                    placeholder="https://example.com/image.jpg" 
+                                    value={field.value || ""} 
+                                    onChange={(e) => field.onChange(e.target.value)} 
+                                  />
                                   <Dialog>
                                     <DialogTrigger asChild>
                                       <Button variant="outline" size="icon" className="ml-2">
@@ -776,6 +919,7 @@ const ArticleEditor = () => {
                                                       }
                                                       
                                                     } catch (error: any) {
+                                                      console.error("Error uploading image:", error);
                                                       toast.error("Error uploading image", {
                                                         description: error.message
                                                       });
