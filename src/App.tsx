@@ -18,6 +18,7 @@ import ArticleManagement from "./pages/admin/ArticleManagement";
 import ArticleEditor from "./pages/admin/ArticleEditor";
 import CategoryManagement from "./pages/admin/CategoryManagement";
 import UserManagement from "./pages/admin/UserManagement";
+import AuthorManagement from "./pages/admin/AuthorManagement";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import ProfilePage from "./pages/ProfilePage";
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="articles/edit/:id" element={<ArticleEditor />} />
               <Route path="categories" element={<CategoryManagement />} />
               <Route path="users" element={<UserManagement />} />
+              <Route path="authors" element={<AuthorManagement />} />
               {/* Additional admin routes would be added here */}
             </Route>
             

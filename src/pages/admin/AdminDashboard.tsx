@@ -11,7 +11,8 @@ import {
   Plus,
   Menu,
   X,
-  FolderOpen
+  FolderOpen,
+  PenTool
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -83,7 +84,7 @@ const AdminSidebar = () => {
               className="text-2xl font-bold flex items-center"
               onClick={closeMobileSidebar}
             >
-              Tech<span className="text-primary-500">Pulse</span>
+              Duck<span className="text-primary-500">cod</span>
               <span className="ml-2 text-sm bg-primary-100 text-primary-700 px-2 py-1 rounded">
                 Admin
               </span>
@@ -110,6 +111,17 @@ const AdminSidebar = () => {
               <Link to="/admin/articles" onClick={closeMobileSidebar}>
                 <FileText className="mr-2 h-5 w-5" />
                 Articles
+              </Link>
+            </Button>
+            
+            <Button
+              variant={isActivePath("/admin/authors") ? "secondary" : "ghost"}
+              className="w-full justify-start"
+              asChild
+            >
+              <Link to="/admin/authors" onClick={closeMobileSidebar}>
+                <PenTool className="mr-2 h-5 w-5" />
+                Authors
               </Link>
             </Button>
             
@@ -174,6 +186,7 @@ const AdminDashboard = () => {
     if (location.pathname.includes("/admin/articles/edit")) return "Edit Article";
     if (location.pathname === "/admin/categories") return "Categories";
     if (location.pathname === "/admin/users") return "Users";
+    if (location.pathname === "/admin/authors") return "Authors";
     if (location.pathname === "/admin/settings") return "Settings";
     return "Admin Dashboard";
   };

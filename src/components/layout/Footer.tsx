@@ -10,9 +10,9 @@ const Footer = () => {
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <h3 className="font-heading text-xl mb-3">Tech<span className="text-primary-500">Pulse</span></h3>
+            <h3 className="font-heading text-xl mb-3">Duck<span className="text-primary-500">cod</span></h3>
             <p className="text-muted-foreground mb-4 max-w-md">
-              Tech Pulse Insights is your source for in-depth analysis, case studies and insights on the latest technology trends and innovations.
+              Duckcod is your source for in-depth analysis, case studies and insights on the latest technology trends and innovations.
             </p>
             <div className="flex space-x-4">
               <a
@@ -90,7 +90,7 @@ const Footer = () => {
         
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {currentYear} Tech Pulse Insights. All rights reserved.
+            &copy; {currentYear} Duckcod. All rights reserved.
           </p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary-500 transition-colors">

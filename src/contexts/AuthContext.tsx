@@ -10,6 +10,7 @@ interface AuthContextType extends Session {
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  createAdminIfNotExists: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -55,6 +56,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     initializeAuth();
 
+    // Create admin user if none exists
+    createAdminIfNotExists();
+
     return () => {
       subscription.unsubscribe();
     };
@@ -74,6 +78,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error fetching user profile:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const createAdminIfNotExists = async () => {
+    try {
+      // Check if admin exists
+      const { data: adminUsers, error: checkError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("role", "admin");
+      
+      if (checkError) throw checkError;
+      
+      // If no admin exists, create one
+      if (!adminUsers || adminUsers.length === 0) {
+        const adminEmail = "admin@duckcod.com";
+        const adminPassword = "Admin123!";
+        
+        // Check if user with email exists
+        const { data: existingUser, error: userCheckError } = await supabase
+          .auth.admin.getUserByEmail(adminEmail);
+        
+        if (!existingUser) {
+          // Create admin user
+          const { data: newAdmin, error: createError } = await supabase.auth.admin.createUser({
+            email: adminEmail,
+            password: adminPassword,
+            email_confirm: true,
+            user_metadata: {
+              name: "Admin User",
+              role: "admin",
+            },
+          });
+
+          if (createError) throw createError;
+          
+          // Update profile with admin role
+          if (newAdmin?.user) {
+            const { error: profileError } = await supabase
+              .from("profiles")
+              .update({
+                role: "admin",
+              })
+              .eq("id", newAdmin.user.id);
+
+            if (profileError) throw profileError;
+            
+            console.log("Admin user created: admin@duckcod.com / Admin123!");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error creating admin user:", error);
     }
   };
 
@@ -147,7 +204,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isLoading,
     signUp,
     signIn,
-    signOut
+    signOut,
+    createAdminIfNotExists
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
