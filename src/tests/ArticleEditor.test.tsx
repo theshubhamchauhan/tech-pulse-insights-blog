@@ -43,7 +43,9 @@ vi.mock('@/contexts/AuthContext', () => ({
     user: { id: 'test-user-id' },
     isAuthenticated: true,
   })),
-  AuthProvider: ({ children }) => <div>{children}</div>,
+  AuthProvider: ({ children }) => {
+    return <div>{children}</div>;
+  },
 }));
 
 // Mock react-hook-form's useForm
