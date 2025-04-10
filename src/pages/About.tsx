@@ -1,6 +1,6 @@
 
-import { Helmet } from "react-helmet";
 import MainLayout from "@/components/layout/MainLayout";
+import SEOHead from "@/components/articles/SEOHead";
 
 const About = () => {
   // SEO metadata for the About page
@@ -8,27 +8,15 @@ const About = () => {
     title: "About Us | TechPulse",
     description: "Learn more about TechPulse, our mission, and our team of tech enthusiasts bringing you the latest in technology news, trends, and insights.",
     canonicalUrl: "https://techpulse.example.com/about",
-    ogType: "website",
+    ogType: "website"
   };
 
   return (
     <MainLayout>
-      <Helmet>
-        <title>{seoMetadata.title}</title>
-        <meta name="description" content={seoMetadata.description} />
-        <link rel="canonical" href={seoMetadata.canonicalUrl} />
-        
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content={seoMetadata.ogType} />
-        <meta property="og:title" content={seoMetadata.title} />
-        <meta property="og:description" content={seoMetadata.description} />
-        <meta property="og:url" content={seoMetadata.canonicalUrl} />
-        
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={seoMetadata.title} />
-        <meta name="twitter:description" content={seoMetadata.description} />
-      </Helmet>
+      <SEOHead 
+        metadata={seoMetadata} 
+        url="https://techpulse.example.com/about" 
+      />
       
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
