@@ -3,7 +3,9 @@ import type { Database } from "@/integrations/supabase/types";
 
 // Type definitions for our database tables
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-export type Category = Database["public"]["Tables"]["categories"]["Row"];
+export type Category = Database["public"]["Tables"]["categories"]["Row"] & {
+  image_url?: string | null;
+};
 export type Tag = Database["public"]["Tables"]["tags"]["Row"];
 
 // Base types from database schema

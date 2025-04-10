@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -430,6 +430,7 @@ const ArticleEditor = () => {
         navigate(`/admin/articles`);
       }, 2000);
     } catch (error: any) {
+      console.error("Save article error:", error);
       toast.error("Error saving article", {
         description: error.message,
       });
@@ -724,23 +725,71 @@ const ArticleEditor = () => {
                                           <div className="text-center">
                                             <Image className="mx-auto h-12 w-12 text-muted-foreground" />
                                             <div className="mt-4">
-                                              <Button variant="secondary">
-                                                <Upload className="mr-2 h-4 w-4" />
-                                                Upload Image
-                                              </Button>
+                                              <label htmlFor="cover-image-upload" className="cursor-pointer">
+                                                <Button variant="secondary" type="button" onClick={() => 
+                                                  document.getElementById('cover-image-upload')?.click()
+                                                }>
+                                                  <Upload className="mr-2 h-4 w-4" />
+                                                  Upload Image
+                                                </Button>
+                                                <input
+                                                  id="cover-image-upload"
+                                                  type="file"
+                                                  accept="image/*"
+                                                  className="hidden"
+                                                  onChange={async (e) => {
+                                                    if (!e.target.files || e.target.files.length === 0) return;
+                                                    
+                                                    const file = e.target.files[0];
+                                                    const fileSize = file.size / 1024 / 1024; // Convert to MB
+                                                    
+                                                    if (fileSize > 5) {
+                                                      toast.error("File too large", {
+                                                        description: "Please upload an image smaller than 5MB"
+                                                      });
+                                                      return;
+                                                    }
+                                                    
+                                                    try {
+                                                      // Generate a unique path for the image
+                                                      const fileExt = file.name.split('.').pop();
+                                                      const fileName = `${Date.now()}.${fileExt}`;
+                                                      const filePath = `article-covers/${fileName}`;
+                                                      
+                                                      // Upload the file to Supabase Storage
+                                                      const { error: uploadError } = await supabase.storage
+                                                        .from('public')
+                                                        .upload(filePath, file);
+                                                      
+                                                      if (uploadError) throw uploadError;
+                                                      
+                                                      // Get the public URL for the uploaded file
+                                                      const { data } = supabase.storage
+                                                        .from('public')
+                                                        .getPublicUrl(filePath);
+                                                      
+                                                      field.onChange(data.publicUrl);
+                                                      
+                                                      const dialogCloseButton = document.querySelector('[data-state="open"] button[type="button"]');
+                                                      if (dialogCloseButton instanceof HTMLElement) {
+                                                        dialogCloseButton.click();
+                                                      }
+                                                      
+                                                    } catch (error: any) {
+                                                      toast.error("Error uploading image", {
+                                                        description: error.message
+                                                      });
+                                                    }
+                                                  }}
+                                                />
+                                              </label>
                                             </div>
                                             <p className="mt-2 text-xs text-muted-foreground">
-                                              PNG, JPG, GIF up to 2MB
+                                              PNG, JPG, GIF up to 5MB
                                             </p>
                                           </div>
                                         </div>
                                       </div>
-                                      <DialogFooter>
-                                        <Button type="button" variant="outline">
-                                          Cancel
-                                        </Button>
-                                        <Button type="button">Upload</Button>
-                                      </DialogFooter>
                                     </DialogContent>
                                   </Dialog>
                                 </div>

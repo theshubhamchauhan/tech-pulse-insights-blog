@@ -36,19 +36,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { 
   Search,
   MoreHorizontal,
   FolderPlus,
   Edit2,
-  Trash2
+  Trash2,
+  Image,
+  Upload
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Category } from "@/lib/types";
+import { v4 as uuidv4 } from 'uuid';
 
 // Form schema for category
 const categoryFormSchema = z.object({
@@ -57,6 +61,7 @@ const categoryFormSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { 
       message: "Slug must be lowercase with hyphens only (e.g. my-category)" 
     }),
+  image_url: z.string().url({ message: "Please enter a valid URL" }).optional().or(z.literal('')),
 });
 
 const CategoryManagement = () => {
@@ -68,12 +73,15 @@ const CategoryManagement = () => {
   const [isEditCategoryOpen, setIsEditCategoryOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
   const [articleCounts, setArticleCounts] = useState<Record<string, number>>({});
+  const [uploading, setUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
   
   const addCategoryForm = useForm<z.infer<typeof categoryFormSchema>>({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
       name: "",
       slug: "",
+      image_url: "",
     },
   });
 
@@ -82,6 +90,7 @@ const CategoryManagement = () => {
     defaultValues: {
       name: "",
       slug: "",
+      image_url: "",
     },
   });
 
@@ -94,7 +103,14 @@ const CategoryManagement = () => {
       editCategoryForm.reset({
         name: currentCategory.name,
         slug: currentCategory.slug,
+        image_url: currentCategory.image_url || "",
       });
+      
+      if (currentCategory.image_url) {
+        setPreviewImage(currentCategory.image_url);
+      } else {
+        setPreviewImage("");
+      }
     }
   }, [currentCategory, isEditCategoryOpen, editCategoryForm]);
 
@@ -142,6 +158,67 @@ const CategoryManagement = () => {
     }
   };
 
+  const uploadCategoryImage = async (file: File): Promise<string> => {
+    try {
+      setUploading(true);
+      
+      // Generate a unique path for the image
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+      const filePath = `category-images/${fileName}`;
+      
+      // Upload the file to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('public')
+        .upload(filePath, file);
+      
+      if (uploadError) throw uploadError;
+      
+      // Get the public URL for the uploaded file
+      const { data } = supabase.storage
+        .from('public')
+        .getPublicUrl(filePath);
+      
+      return data.publicUrl;
+    } catch (error: any) {
+      toast({
+        title: "Error uploading image",
+        description: error.message,
+        variant: "destructive",
+      });
+      return "";
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, formType: 'add' | 'edit') => {
+    const form = formType === 'add' ? addCategoryForm : editCategoryForm;
+    
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+    
+    const file = e.target.files[0];
+    const fileSize = file.size / 1024 / 1024; // Convert to MB
+    
+    if (fileSize > 2) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const imageUrl = await uploadCategoryImage(file);
+    
+    if (imageUrl) {
+      form.setValue("image_url", imageUrl);
+      setPreviewImage(imageUrl);
+    }
+  };
+
   const handleAddCategory = async (values: z.infer<typeof categoryFormSchema>) => {
     try {
       // Check if slug already exists
@@ -165,6 +242,7 @@ const CategoryManagement = () => {
         .insert({
           name: values.name,
           slug: values.slug,
+          image_url: values.image_url || null,
         })
         .select()
         .single();
@@ -179,6 +257,7 @@ const CategoryManagement = () => {
       fetchCategories();
       setIsAddCategoryOpen(false);
       addCategoryForm.reset();
+      setPreviewImage("");
     } catch (error: any) {
       toast({
         title: "Error creating category",
@@ -215,6 +294,7 @@ const CategoryManagement = () => {
         .update({
           name: values.name,
           slug: values.slug,
+          image_url: values.image_url || null,
         })
         .eq("id", currentCategory.id);
       
@@ -229,6 +309,7 @@ const CategoryManagement = () => {
       setIsEditCategoryOpen(false);
       setCurrentCategory(null);
       editCategoryForm.reset();
+      setPreviewImage("");
     } catch (error: any) {
       toast({
         title: "Error updating category",
@@ -356,6 +437,61 @@ const CategoryManagement = () => {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={addCategoryForm.control}
+                    name="image_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category Image</FormLabel>
+                        <FormControl>
+                          <div className="space-y-2">
+                            <div className="flex items-center">
+                              <Input 
+                                placeholder="https://example.com/image.jpg" 
+                                {...field} 
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="ml-2"
+                                onClick={() => document.getElementById('add-category-image-upload')?.click()}
+                                disabled={uploading}
+                              >
+                                {uploading ? 
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" /> : 
+                                  <Upload className="h-4 w-4" />
+                                }
+                              </Button>
+                              <input
+                                id="add-category-image-upload"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => handleFileChange(e, 'add')}
+                              />
+                            </div>
+                            {field.value && (
+                              <div className="mt-2 border rounded-md overflow-hidden">
+                                <img
+                                  src={field.value}
+                                  alt="Category preview"
+                                  className="w-full h-32 object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "https://via.placeholder.com/400x200?text=Image+Not+Found";
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          Upload an image for the category or enter an image URL
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 <DialogFooter>
                   <DialogClose asChild>
@@ -386,6 +522,7 @@ const CategoryManagement = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Articles</TableHead>
@@ -395,11 +532,27 @@ const CategoryManagement = () => {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">Loading categories...</TableCell>
+                <TableCell colSpan={5} className="text-center">Loading categories...</TableCell>
               </TableRow>
             ) : filteredCategories.length > 0 ? (
               filteredCategories.map((category) => (
                 <TableRow key={category.id}>
+                  <TableCell>
+                    {category.image_url ? (
+                      <img 
+                        src={category.image_url} 
+                        alt={category.name} 
+                        className="w-12 h-12 object-cover rounded-md"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://via.placeholder.com/48?text=No+Image";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center">
+                        <Image className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell>{category.slug}</TableCell>
                   <TableCell>{articleCounts[category.id] || 0}</TableCell>
@@ -436,6 +589,7 @@ const CategoryManagement = () => {
                       if (!open) {
                         setIsEditCategoryOpen(false);
                         setCurrentCategory(null);
+                        setPreviewImage("");
                       }
                     }}>
                       <DialogContent className="sm:max-w-[425px]">
@@ -444,7 +598,7 @@ const CategoryManagement = () => {
                             <DialogHeader>
                               <DialogTitle>Edit Category</DialogTitle>
                               <DialogDescription>
-                                Update the category name and slug
+                                Update the category name, slug, and image
                               </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
@@ -480,6 +634,61 @@ const CategoryManagement = () => {
                                   </FormItem>
                                 )}
                               />
+                              <FormField
+                                control={editCategoryForm.control}
+                                name="image_url"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Category Image</FormLabel>
+                                    <FormControl>
+                                      <div className="space-y-2">
+                                        <div className="flex items-center">
+                                          <Input 
+                                            placeholder="https://example.com/image.jpg" 
+                                            {...field} 
+                                          />
+                                          <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="icon"
+                                            className="ml-2"
+                                            onClick={() => document.getElementById('edit-category-image-upload')?.click()}
+                                            disabled={uploading}
+                                          >
+                                            {uploading ? 
+                                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" /> : 
+                                              <Upload className="h-4 w-4" />
+                                            }
+                                          </Button>
+                                          <input
+                                            id="edit-category-image-upload"
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => handleFileChange(e, 'edit')}
+                                          />
+                                        </div>
+                                        {field.value && (
+                                          <div className="mt-2 border rounded-md overflow-hidden">
+                                            <img
+                                              src={field.value}
+                                              alt="Category preview"
+                                              className="w-full h-32 object-cover"
+                                              onError={(e) => {
+                                                (e.target as HTMLImageElement).src = "https://via.placeholder.com/400x200?text=Image+Not+Found";
+                                              }}
+                                            />
+                                          </div>
+                                        )}
+                                      </div>
+                                    </FormControl>
+                                    <FormDescription>
+                                      Upload a new image or enter an image URL
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                             </div>
                             <DialogFooter>
                               <DialogClose asChild>
@@ -496,7 +705,7 @@ const CategoryManagement = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">No categories found</TableCell>
+                <TableCell colSpan={5} className="text-center">No categories found</TableCell>
               </TableRow>
             )}
           </TableBody>

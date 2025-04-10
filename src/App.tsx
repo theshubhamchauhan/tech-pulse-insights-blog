@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 import Index from "./pages/Index";
@@ -54,9 +54,11 @@ const App = () => (
               <Route path="categories" element={<CategoryManagement />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="authors" element={<AuthorManagement />} />
-              {/* Additional admin routes would be added here */}
             </Route>
             
+            {/* Redirect from /admin/ to /admin */}
+            <Route path="/admin/" element={<Navigate to="/admin" replace />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

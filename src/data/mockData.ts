@@ -1,3 +1,4 @@
+
 import { ArticleWithRelations, Author, Category, Tag, Article } from "@/lib/types";
 
 // Mock authors
@@ -31,25 +32,29 @@ export const categories: Category[] = [
     id: "1",
     name: "Technology",
     slug: "technology",
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
   },
   {
     id: "2",
     name: "Science",
     slug: "science",
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
   },
   {
     id: "3",
     name: "Health",
     slug: "health",
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
   },
   {
     id: "4",
     name: "Business",
     slug: "business",
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    image_url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
   }
 ];
 
