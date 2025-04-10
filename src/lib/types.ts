@@ -9,16 +9,16 @@ export type Category = Database["public"]["Tables"]["categories"]["Row"] & {
 export type Tag = Database["public"]["Tables"]["tags"]["Row"];
 
 // Base types from database schema
-export type BaseArticle = Database["public"]["Tables"]["articles"]["Row"];
-
-// Extended article type with SEO fields
-export type Article = BaseArticle & {
+export type BaseArticle = Database["public"]["Tables"]["articles"]["Row"] & {
   meta_title?: string | null;
   meta_description?: string | null;
   meta_keywords?: string | null;
   canonical_url?: string | null;
   og_image?: string | null;
 };
+
+// Extended article type with SEO fields
+export type Article = BaseArticle;
 
 export type Comment = Database["public"]["Tables"]["comments"]["Row"];
 export type Favorite = Database["public"]["Tables"]["favorites"]["Row"];
