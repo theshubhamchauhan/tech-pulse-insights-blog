@@ -1,5 +1,4 @@
-
-import { ArticleWithRelations, Author, Category, Tag } from "@/lib/types";
+import { ArticleWithRelations, Author, Category, Tag, Article } from "@/lib/types";
 
 // Mock authors
 export const authors: Author[] = [
@@ -93,6 +92,8 @@ export const articles: ArticleWithRelations[] = [
     read_time: "5 min read",
     is_featured: true,
     status: "published",
+    author_id: authors[0].id,
+    category_id: categories[2].id,
     meta_title: "The Future of AI in Healthcare | Duckcod",
     meta_description: "Exploring how artificial intelligence is transforming medical diagnosis and treatment.",
     meta_keywords: "AI, healthcare, medicine, technology, future",
@@ -114,6 +115,8 @@ export const articles: ArticleWithRelations[] = [
     read_time: "8 min read",
     is_featured: false,
     status: "published",
+    author_id: authors[1].id,
+    category_id: categories[0].id,
     meta_title: "",
     meta_description: "",
     meta_keywords: "",
@@ -135,6 +138,8 @@ export const articles: ArticleWithRelations[] = [
     read_time: "10 min read",
     is_featured: true,
     status: "published",
+    author_id: authors[2].id,
+    category_id: categories[1].id,
     meta_title: "",
     meta_description: "",
     meta_keywords: "",
@@ -156,6 +161,8 @@ export const articles: ArticleWithRelations[] = [
     read_time: "6 min read",
     is_featured: false,
     status: "draft",
+    author_id: authors[0].id,
+    category_id: categories[3].id,
     meta_title: "",
     meta_description: "",
     meta_keywords: "",

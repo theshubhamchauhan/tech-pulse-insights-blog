@@ -71,7 +71,12 @@ export async function getArticles(): Promise<ArticleWithRelations[]> {
         ...article as Article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
-        tags: tagData?.map(t => t.tags) || []
+        tags: tagData?.map(t => t.tags) || [],
+        meta_title: article.meta_title || null,
+        meta_description: article.meta_description || null,
+        meta_keywords: article.meta_keywords || null,
+        canonical_url: article.canonical_url || null,
+        og_image: article.og_image || null
       };
       
       return mappedArticle;
@@ -107,7 +112,12 @@ export async function getArticleBySlug(slug: string): Promise<ArticleWithRelatio
     ...data as Article,
     author: data.author as SimpleProfile,
     category: data.category as Category,
-    tags: tagData?.map(t => t.tags) || []
+    tags: tagData?.map(t => t.tags) || [],
+    meta_title: data.meta_title || null,
+    meta_description: data.meta_description || null,
+    meta_keywords: data.meta_keywords || null,
+    canonical_url: data.canonical_url || null,
+    og_image: data.og_image || null
   };
   
   return mappedArticle;
@@ -141,7 +151,12 @@ export async function getFeaturedArticles(): Promise<ArticleWithRelations[]> {
         ...article as Article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
-        tags: tagData?.map(t => t.tags) || []
+        tags: tagData?.map(t => t.tags) || [],
+        meta_title: article.meta_title || null,
+        meta_description: article.meta_description || null,
+        meta_keywords: article.meta_keywords || null,
+        canonical_url: article.canonical_url || null,
+        og_image: article.og_image || null
       };
       
       return mappedArticle;
@@ -188,7 +203,12 @@ export async function getArticlesByCategory(categorySlug: string): Promise<Artic
         ...article as Article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
-        tags: tagData?.map(t => t.tags) || []
+        tags: tagData?.map(t => t.tags) || [],
+        meta_title: article.meta_title || null,
+        meta_description: article.meta_description || null,
+        meta_keywords: article.meta_keywords || null,
+        canonical_url: article.canonical_url || null,
+        og_image: article.og_image || null
       };
       
       return mappedArticle;
@@ -367,7 +387,12 @@ export async function getUserFavorites(): Promise<ArticleWithRelations[]> {
         ...article as Article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
-        tags: tagData?.map(t => t.tags) || []
+        tags: tagData?.map(t => t.tags) || [],
+        meta_title: article.meta_title || null,
+        meta_description: article.meta_description || null,
+        meta_keywords: article.meta_keywords || null,
+        canonical_url: article.canonical_url || null,
+        og_image: article.og_image || null
       };
       
       return mappedArticle;

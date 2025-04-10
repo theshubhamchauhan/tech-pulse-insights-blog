@@ -41,7 +41,7 @@ export interface Author {
 }
 
 // Extended types for UI display
-export interface ArticleWithRelations extends Omit<Article, "author_id" | "category_id"> {
+export interface ArticleWithRelations extends Article {
   author: SimpleProfile;
   category: Category;
   tags: Tag[];
