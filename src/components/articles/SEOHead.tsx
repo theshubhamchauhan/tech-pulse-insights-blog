@@ -26,7 +26,7 @@ const SEOHead = ({ metadata, url }: SEOHeadProps) => {
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={metadata.ogType || "article"} />
       <meta property="og:title" content={metadata.title} />
-      <meta property="og:description" content={metadata.description} />
+      <meta property="og:description" content={metadata.description || ""} />
       <meta property="og:url" content={metadata.canonicalUrl || url} />
       
       {metadata.ogImage && (
@@ -36,7 +36,7 @@ const SEOHead = ({ metadata, url }: SEOHeadProps) => {
       {/* Twitter */}
       <meta name="twitter:card" content={metadata.twitterCard || "summary_large_image"} />
       <meta name="twitter:title" content={metadata.title} />
-      <meta name="twitter:description" content={metadata.description} />
+      <meta name="twitter:description" content={metadata.description || ""} />
       
       {metadata.ogImage && (
         <meta name="twitter:image" content={metadata.ogImage} />
@@ -49,7 +49,7 @@ const SEOHead = ({ metadata, url }: SEOHeadProps) => {
             "@context": "https://schema.org",
             "@type": "Article",
             "headline": "${metadata.title}",
-            "description": "${metadata.description}",
+            "description": "${metadata.description || ''}",
             "image": "${metadata.ogImage || ''}",
             "mainEntityOfPage": {
               "@type": "WebPage",
