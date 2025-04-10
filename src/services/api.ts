@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { 
   ArticleWithRelations, 
@@ -7,7 +6,8 @@ import type {
   SimpleProfile,
   Category, 
   Tag,
-  ArticleStatus
+  ArticleStatus,
+  Article
 } from "@/lib/types";
 
 // Categories
@@ -67,17 +67,12 @@ export async function getArticles(): Promise<ArticleWithRelations[]> {
       
       if (tagError) throw tagError;
       
-      const mappedArticle = {
-        ...article,
+      const mappedArticle: ArticleWithRelations = {
+        ...article as Article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
-        tags: tagData?.map(t => t.tags) || [],
-        meta_title: article.meta_title,
-        meta_description: article.meta_description,
-        meta_keywords: article.meta_keywords,
-        canonical_url: article.canonical_url,
-        og_image: article.og_image
-      } as ArticleWithRelations;
+        tags: tagData?.map(t => t.tags) || []
+      };
       
       return mappedArticle;
     })
@@ -108,17 +103,12 @@ export async function getArticleBySlug(slug: string): Promise<ArticleWithRelatio
   
   if (tagError) throw tagError;
   
-  const mappedArticle = {
-    ...data,
+  const mappedArticle: ArticleWithRelations = {
+    ...data as Article,
     author: data.author as SimpleProfile,
     category: data.category as Category,
-    tags: tagData?.map(t => t.tags) || [],
-    meta_title: data.meta_title,
-    meta_description: data.meta_description,
-    meta_keywords: data.meta_keywords,
-    canonical_url: data.canonical_url,
-    og_image: data.og_image
-  } as ArticleWithRelations;
+    tags: tagData?.map(t => t.tags) || []
+  };
   
   return mappedArticle;
 }
@@ -147,17 +137,12 @@ export async function getFeaturedArticles(): Promise<ArticleWithRelations[]> {
       
       if (tagError) throw tagError;
       
-      const mappedArticle = {
-        ...article,
+      const mappedArticle: ArticleWithRelations = {
+        ...article as Article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
-        tags: tagData?.map(t => t.tags) || [],
-        meta_title: article.meta_title,
-        meta_description: article.meta_description, 
-        meta_keywords: article.meta_keywords,
-        canonical_url: article.canonical_url,
-        og_image: article.og_image
-      } as ArticleWithRelations;
+        tags: tagData?.map(t => t.tags) || []
+      };
       
       return mappedArticle;
     })
@@ -199,17 +184,12 @@ export async function getArticlesByCategory(categorySlug: string): Promise<Artic
       
       if (tagError) throw tagError;
       
-      const mappedArticle = {
-        ...article,
+      const mappedArticle: ArticleWithRelations = {
+        ...article as Article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
-        tags: tagData?.map(t => t.tags) || [],
-        meta_title: article.meta_title,
-        meta_description: article.meta_description,
-        meta_keywords: article.meta_keywords,
-        canonical_url: article.canonical_url,
-        og_image: article.og_image
-      } as ArticleWithRelations;
+        tags: tagData?.map(t => t.tags) || []
+      };
       
       return mappedArticle;
     })
@@ -383,17 +363,12 @@ export async function getUserFavorites(): Promise<ArticleWithRelations[]> {
       
       if (tagError) throw tagError;
       
-      const mappedArticle = {
-        ...article,
+      const mappedArticle: ArticleWithRelations = {
+        ...article as Article,
         author: article.author as SimpleProfile,
         category: article.category as Category,
-        tags: tagData?.map(t => t.tags) || [],
-        meta_title: article.meta_title,
-        meta_description: article.meta_description,
-        meta_keywords: article.meta_keywords,
-        canonical_url: article.canonical_url,
-        og_image: article.og_image
-      } as ArticleWithRelations;
+        tags: tagData?.map(t => t.tags) || []
+      };
       
       return mappedArticle;
     })

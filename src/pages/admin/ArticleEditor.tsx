@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,7 +65,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Category, Tag as TagType, ArticleStatus } from "@/lib/types";
+import { Article, Category, Tag as TagType, ArticleStatus } from "@/lib/types";
 
 const articleFormSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters" }),
@@ -359,7 +358,7 @@ const ArticleEditor = () => {
         category_id: article.category_id,
         cover_image: article.cover_image,
         read_time: article.read_time,
-        status: article.status as ArticleStatus,
+        status: article.status,
         is_featured: article.is_featured,
         author_id: user.id,
         meta_title: seo.meta_title || null,

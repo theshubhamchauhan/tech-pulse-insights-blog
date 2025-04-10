@@ -5,13 +5,16 @@ import type { Database } from "@/integrations/supabase/types";
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Tag = Database["public"]["Tables"]["tags"]["Row"];
-export type Article = Database["public"]["Tables"]["articles"]["Row"] & {
+
+// Base Article type from database schema, extended with SEO fields
+export interface Article extends Database["public"]["Tables"]["articles"]["Row"] {
   meta_title?: string | null;
   meta_description?: string | null;
   meta_keywords?: string | null;
   canonical_url?: string | null;
   og_image?: string | null;
-};
+}
+
 export type Comment = Database["public"]["Tables"]["comments"]["Row"];
 export type Favorite = Database["public"]["Tables"]["favorites"]["Row"];
 export type ArticleTag = Database["public"]["Tables"]["article_tags"]["Row"];
@@ -42,11 +45,6 @@ export interface ArticleWithRelations extends Omit<Article, "author_id" | "categ
   author: SimpleProfile;
   category: Category;
   tags: Tag[];
-  meta_title?: string | null;
-  meta_description?: string | null;
-  meta_keywords?: string | null;
-  canonical_url?: string | null;
-  og_image?: string | null;
 }
 
 export interface CommentWithAuthor extends Omit<Comment, "author_id"> {
