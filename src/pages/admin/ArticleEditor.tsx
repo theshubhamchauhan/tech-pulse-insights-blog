@@ -94,18 +94,7 @@ const articleFormSchema = z.object({
   is_featured: z.boolean().default(false),
 });
 
-const seoFormSchema = z.object({
-  meta_title: z.string().max(60, { message: "Meta title should not exceed 60 characters" }).optional(),
-  meta_description: z.string().max(160, { message: "Meta description should not exceed 160 characters" }).optional(),
-  meta_keywords: z.string().max(200, { message: "Meta keywords should not exceed 200 characters" }).optional(),
-  canonical_url: z.string().url({ message: "Please enter a valid canonical URL" }).optional().or(z.literal('')),
-  og_image: z.string().url({ message: "Please enter a valid URL for the OG image" }).optional().or(z.literal('')),
-});
-
-const formSchema = z.object({
-  article: articleFormSchema,
-  seo: seoFormSchema,
-});
+const formSchema = articleFormSchema;
 
 const ArticleEditor = () => {
   const { id } = useParams();
@@ -126,24 +115,15 @@ const ArticleEditor = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      article: {
-        title: "",
-        slug: "",
-        excerpt: "",
-        content: "",
-        category_id: "",
-        cover_image: "",
-        read_time: "5 min read",
-        status: "draft" as ArticleStatus,
-        is_featured: false,
-      },
-      seo: {
-        meta_title: "",
-        meta_description: "",
-        meta_keywords: "",
-        canonical_url: "",
-        og_image: "",
-      },
+      title: "",
+      slug: "",
+      excerpt: "",
+      content: "",
+      category_id: "",
+      cover_image: "",
+      read_time: "5 min read",
+      status: "draft" as ArticleStatus,
+      is_featured: false,
     },
   });
 
@@ -188,24 +168,15 @@ const ArticleEditor = () => {
       setSelectedTags(tags);
       
       form.reset({
-        article: {
-          title: article.title,
-          slug: article.slug,
-          excerpt: article.excerpt,
-          content: article.content,
-          category_id: article.category_id,
-          cover_image: article.cover_image || "",
-          read_time: article.read_time,
-          status: (article.status as ArticleStatus) || "draft",
-          is_featured: article.is_featured || false,
-        },
-        seo: {
-          meta_title: article.meta_title || "",
-          meta_description: article.meta_description || "",
-          meta_keywords: article.meta_keywords || "",
-          canonical_url: article.canonical_url || "",
-          og_image: article.og_image || "",
-        },
+        title: article.title,
+        slug: article.slug,
+        excerpt: article.excerpt,
+        content: article.content,
+        category_id: article.category_id,
+        cover_image: article.cover_image || "",
+        read_time: article.read_time,
+        status: (article.status as ArticleStatus) || "draft",
+        is_featured: article.is_featured || false,
       });
     } catch (error: any) {
       console.error("Error loading article:", error);
@@ -260,27 +231,13 @@ const ArticleEditor = () => {
   };
 
   const handleTitleChange = (title: string) => {
-    form.setValue("article.title", title);
+    form.setValue("title", title);
     
-    const currentSlug = form.getValues("article.slug");
+    const currentSlug = form.getValues("slug");
     const derivedSlug = generateSlug(title);
     
-    if (!currentSlug || currentSlug === generateSlug(form.getValues("article.title"))) {
-      form.setValue("article.slug", derivedSlug);
-    }
-    
-    const currentMetaTitle = form.getValues("seo.meta_title");
-    if (!currentMetaTitle) {
-      form.setValue("seo.meta_title", title);
-    }
-  };
-
-  const handleExcerptChange = (excerpt: string) => {
-    form.setValue("article.excerpt", excerpt);
-    
-    const currentMetaDescription = form.getValues("seo.meta_description");
-    if (!currentMetaDescription) {
-      form.setValue("seo.meta_description", excerpt);
+    if (!currentSlug || currentSlug === generateSlug(form.getValues("title"))) {
+      form.setValue("slug", derivedSlug);
     }
   };
 
@@ -346,10 +303,10 @@ const ArticleEditor = () => {
   };
 
   const handleContentChange = (content: string) => {
-    form.setValue("article.content", content);
+    form.setValue("content", content);
     
     const readTime = estimateReadTime(content);
-    form.setValue("article.read_time", readTime);
+    form.setValue("read_time", readTime);
   };
 
   const insertMarkdown = (markdownSymbol: string, selectionReplace?: (selected: string) => string) => {
@@ -372,7 +329,7 @@ const ArticleEditor = () => {
       textarea.value = newText;
     }
 
-    form.setValue("article.content", newText);
+    form.setValue("content", newText);
     
     // Reset cursor position
     setTimeout(() => {
@@ -401,24 +358,17 @@ const ArticleEditor = () => {
     try {
       setIsSaving(true);
       
-      const { article, seo } = data;
-      
       const articleData = {
-        title: article.title,
-        slug: article.slug,
-        excerpt: article.excerpt,
-        content: article.content,
-        category_id: article.category_id,
-        cover_image: article.cover_image || null,
-        read_time: article.read_time,
-        status: article.status,
-        is_featured: article.is_featured,
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt,
+        content: data.content,
+        category_id: data.category_id,
+        cover_image: data.cover_image || null,
+        read_time: data.read_time,
+        status: data.status,
+        is_featured: data.is_featured,
         author_id: user.id,
-        meta_title: seo.meta_title || null,
-        meta_description: seo.meta_description || null,
-        meta_keywords: seo.meta_keywords || null,
-        canonical_url: seo.canonical_url || null,
-        og_image: seo.og_image || null,
       };
       
       let articleId = id && id !== 'new' ? id : undefined;
@@ -471,7 +421,7 @@ const ArticleEditor = () => {
       toast.success(
         id && id !== 'new' ? "Article updated successfully" : "Article created successfully",
         {
-          description: article.status === "published" 
+          description: data.status === "published" 
             ? "The article is now live on your site" 
             : "The article has been saved as a draft"
         }
@@ -530,11 +480,11 @@ const ArticleEditor = () => {
           <h1 className="text-2xl font-bold">
             {id && id !== 'new' ? 'Edit Article' : 'Create New Article'}
           </h1>
-          {form.watch("article.status") && (
-            <Badge className={`${getStatusColor(form.watch("article.status"))} text-white ml-2`}>
+          {form.watch("status") && (
+            <Badge className={`${getStatusColor(form.watch("status"))} text-white ml-2`}>
               <span className="flex items-center gap-1">
-                {getStatusIcon(form.watch("article.status"))}
-                {form.watch("article.status").charAt(0).toUpperCase() + form.watch("article.status").slice(1)}
+                {getStatusIcon(form.watch("status"))}
+                {form.watch("status").charAt(0).toUpperCase() + form.watch("status").slice(1)}
               </span>
             </Badge>
           )}
@@ -612,7 +562,7 @@ const ArticleEditor = () => {
                   <CardContent className="space-y-6">
                     <FormField
                       control={form.control}
-                      name="article.title"
+                      name="title"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Title</FormLabel>
@@ -635,7 +585,7 @@ const ArticleEditor = () => {
                     
                     <FormField
                       control={form.control}
-                      name="article.slug"
+                      name="slug"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Slug</FormLabel>
@@ -656,7 +606,7 @@ const ArticleEditor = () => {
                     
                     <FormField
                       control={form.control}
-                      name="article.excerpt"
+                      name="excerpt"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Excerpt</FormLabel>
@@ -666,10 +616,6 @@ const ArticleEditor = () => {
                               className="resize-none" 
                               rows={3}
                               {...field}
-                              onChange={(e) => {
-                                field.onChange(e);
-                                handleExcerptChange(e.target.value);
-                              }}
                             />
                           </FormControl>
                           <FormDescription>
@@ -682,7 +628,7 @@ const ArticleEditor = () => {
                     
                     <FormField
                       control={form.control}
-                      name="article.content"
+                      name="content"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Content</FormLabel>
@@ -810,7 +756,7 @@ const ArticleEditor = () => {
                     <CardContent className="space-y-4">
                       <FormField
                         control={form.control}
-                        name="article.category_id"
+                        name="category_id"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Category</FormLabel>
@@ -838,7 +784,7 @@ const ArticleEditor = () => {
                       
                       <FormField
                         control={form.control}
-                        name="article.cover_image"
+                        name="cover_image"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Cover Image</FormLabel>
@@ -958,7 +904,7 @@ const ArticleEditor = () => {
                       
                       <FormField
                         control={form.control}
-                        name="article.status"
+                        name="status"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Status</FormLabel>
@@ -981,7 +927,7 @@ const ArticleEditor = () => {
                       
                       <FormField
                         control={form.control}
-                        name="article.read_time"
+                        name="read_time"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Read Time</FormLabel>
@@ -1001,7 +947,7 @@ const ArticleEditor = () => {
                       
                       <FormField
                         control={form.control}
-                        name="article.is_featured"
+                        name="is_featured"
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 mt-4">
                             <div className="space-y-0.5">
@@ -1090,122 +1036,6 @@ const ArticleEditor = () => {
                             ))}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>SEO Settings</CardTitle>
-                      <CardDescription>
-                        Optimize your article for search engines
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="seo.meta_title"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Meta Title</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="SEO title (max 60 characters)" 
-                                {...field} 
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {field.value?.length || 0}/60 characters
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="seo.meta_description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Meta Description</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="SEO description (max 160 characters)" 
-                                rows={3}
-                                {...field} 
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {field.value?.length || 0}/160 characters
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="seo.meta_keywords"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Meta Keywords</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="keyword1, keyword2, keyword3" 
-                                {...field} 
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Comma-separated keywords
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="seo.canonical_url"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Canonical URL</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="https://example.com/canonical-page" 
-                                {...field} 
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Optional: Use when this content appears on multiple URLs
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="seo.og_image"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Social Media Image URL</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="https://example.com/social-image.jpg" 
-                                {...field} 
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Optional: Custom image for social media sharing (1200×630 recommended)
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </CardContent>
                   </Card>
                 </div>

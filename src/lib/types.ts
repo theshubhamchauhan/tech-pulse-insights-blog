@@ -11,14 +11,8 @@ export type Tag = Database["public"]["Tables"]["tags"]["Row"];
 // Base types from database schema
 export type BaseArticle = Database["public"]["Tables"]["articles"]["Row"];
 
-// Extended article type with SEO fields
-export type Article = BaseArticle & {
-  meta_title?: string | null;
-  meta_description?: string | null;
-  meta_keywords?: string | null;
-  canonical_url?: string | null;
-  og_image?: string | null;
-};
+// Extended article type with basic properties
+export type Article = BaseArticle;
 
 export type Comment = Database["public"]["Tables"]["comments"]["Row"];
 export type Favorite = Database["public"]["Tables"]["favorites"]["Row"];
@@ -50,11 +44,6 @@ export type ArticleWithRelations = Omit<Article, "author_id" | "category_id"> & 
   author: SimpleProfile;
   category: Category;
   tags: Tag[];
-  meta_title?: string | null;
-  meta_description?: string | null;
-  meta_keywords?: string | null;
-  canonical_url?: string | null;
-  og_image?: string | null;
 };
 
 export interface CommentWithAuthor extends Omit<Comment, "author_id"> {
@@ -68,7 +57,7 @@ export interface Session {
   isLoading: boolean;
 }
 
-// SEO metadata interface
+// SEO metadata interface (simplified)
 export interface SEOMetadata {
   title: string;
   description?: string;
@@ -116,11 +105,9 @@ export const ensureAuthor = (profile: SimpleProfile): Author => {
 // Utility function to generate SEO metadata from article
 export const generateSEOMetadata = (article: ArticleWithRelations): SEOMetadata => {
   return {
-    title: article.meta_title || article.title,
-    description: article.meta_description || article.excerpt,
-    keywords: article.meta_keywords || "",
-    canonicalUrl: article.canonical_url || "",
-    ogImage: article.og_image || article.cover_image,
+    title: article.title,
+    description: article.excerpt,
+    ogImage: article.cover_image,
     ogType: "article",
     twitterCard: "summary_large_image"
   };

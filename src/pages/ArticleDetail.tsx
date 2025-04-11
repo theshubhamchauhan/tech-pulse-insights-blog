@@ -10,7 +10,8 @@ import AuthorBio from "@/components/articles/AuthorBio";
 import ArticleComments from "@/components/articles/ArticleComments";
 import RelatedArticles from "@/components/articles/RelatedArticles";
 import ArticleNotFound from "@/components/articles/ArticleNotFound";
-import { ArticleWithRelations, CommentWithAuthor } from "@/lib/types";
+import SEOHead from "@/components/articles/SEOHead";
+import { ArticleWithRelations, CommentWithAuthor, generateSEOMetadata } from "@/lib/types";
 import { 
   getArticleBySlug, 
   getArticlesByCategory, 
@@ -162,8 +163,13 @@ const ArticleDetail = () => {
     return <ArticleNotFound />;
   }
 
+  // Generate SEO metadata
+  const seoMetadata = generateSEOMetadata(article);
+  const currentUrl = window.location.href;
+
   return (
     <MainLayout>
+      <SEOHead metadata={seoMetadata} url={currentUrl} />
       <article className="container mx-auto px-4 py-8">
         <ArticleHeader 
           title={article.title}
