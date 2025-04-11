@@ -11,7 +11,7 @@ const SEOHead = ({ metadata, url }: SEOHeadProps) => {
   return (
     <Helmet>
       <title>{metadata.title}</title>
-      <meta name="description" content={metadata.description} />
+      <meta name="description" content={metadata.description || ""} />
       
       {metadata.keywords && (
         <meta name="keywords" content={metadata.keywords} />
